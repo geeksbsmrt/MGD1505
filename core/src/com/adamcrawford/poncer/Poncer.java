@@ -70,7 +70,7 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         userPlayerTexture = new Texture("player2.gif");
         userPlayerSprite = new Sprite(userPlayerTexture);
         userPlayerSprite.setScale(4);
-        userPlayerSprite.setCenter(screenWidth - 100, screenHeight / 2);
+        userPlayerSprite.setCenter(screenWidth - 30, screenHeight / 2);
 
         //setup ball sprite
         ballTexture = new Texture("SoccerBall.png");
@@ -159,7 +159,7 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
 
         ballX += time * ballXSpeed;
         ballY += time * ballYSpeed;
-        ballBounds.set(ballX, ballY, 12);
+        ballBounds.set(ballX, ballY, 24);
         ballSprite.setPosition(ballX, ballY);
 
     }
