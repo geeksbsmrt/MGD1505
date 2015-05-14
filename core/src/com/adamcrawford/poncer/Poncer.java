@@ -61,10 +61,10 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
 		field = new Texture("soccerField.jpg");
 
         //Setup player 1 sprite
-        AIPlayerTexture = new Texture("player1.gif");
+        AIPlayerTexture = new Texture("player1_2.gif");
 		AIPlayerSprite = new Sprite(AIPlayerTexture);
         AIPlayerSprite.setScale(4);
-        AIPlayerSprite.setCenter(100, screenHeight / 2);
+        AIPlayerSprite.setCenter(30, screenHeight / 2);
 
         //setup Player2 sprite
         userPlayerTexture = new Texture("player2.gif");
