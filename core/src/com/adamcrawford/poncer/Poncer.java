@@ -15,59 +15,81 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 
 public class Poncer extends ApplicationAdapter implements InputProcessor {
+
+    float screenWidth;
+    float screenHeight;
 	SpriteBatch batch;
 	Texture field;
-    Texture player1Texture;
-	Sprite player1Sprite;
-    Texture player2Texture;
-    Sprite player2Sprite;
+    Texture AIPlayerTexture;
+	Sprite AIPlayerSprite;
+    Texture userPlayerTexture;
+    Sprite userPlayerSprite;
     Texture ballTexture;
     Sprite ballSprite;
     Circle ballBounds;
-    Rectangle player1Bounds;
-    Rectangle player2Bounds;
+    Rectangle ballRect;
+    Rectangle AIPlayerBounds;
+    Rectangle userPlayerBounds;
+    Rectangle screenBounds;
+    float screenLeft;
+    float screenBottom;
+    float screenTop;
+    float screenRight;
 
     Sound ballSound;
     Sound cheer;
-	
+
+    float ballXSpeed;
+    float ballYSpeed;
+    float ballX;
+    float ballY;
+
 	@Override
 	public void create () {
 
         Gdx.input.setInputProcessor(this);
+
+        screenWidth = Gdx.graphics.getWidth();
+        screenHeight = Gdx.graphics.getHeight();
 
 		batch = new SpriteBatch();
         // Setup Field graphic
 		field = new Texture("soccerField.jpg");
 
         //Setup player 1 sprite
-        player1Texture = new Texture("player1.gif");
-		player1Sprite = new Sprite(player1Texture);
-        player1Sprite.setScale(4);
-        player1Sprite.setCenter(100, Gdx.graphics.getHeight() / 2);
-
+        AIPlayerTexture = new Texture("player1.gif");
+		AIPlayerSprite = new Sprite(AIPlayerTexture);
+        AIPlayerSprite.setScale(4);
+        AIPlayerSprite.setCenter(100, screenHeight / 2);
 
         //setup Player2 sprite
-        player2Texture = new Texture("player2.gif");
-        player2Sprite = new Sprite(player2Texture);
-        player2Sprite.setScale(4);
-        player2Sprite.setCenter(Gdx.graphics.getWidth() - 100, Gdx.graphics.getHeight() / 2);
-
+        userPlayerTexture = new Texture("player2.gif");
+        userPlayerSprite = new Sprite(userPlayerTexture);
+        userPlayerSprite.setScale(4);
+        userPlayerSprite.setCenter(screenWidth - 100, screenHeight / 2);
 
         //setup ball sprite
         ballTexture = new Texture("SoccerBall.png");
         ballSprite = new Sprite(ballTexture);
         ballSprite.setSize(48, 48);
-        ballSprite.setCenter(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
+        //ballSprite.setOriginCenter();
+        ballX = screenWidth/2;
+        ballY = screenHeight/2;
 
         // set bounds
-        ballBounds = new Circle(ballSprite.getX() + 24, ballSprite.getY() + 24, 24);
-        player1Bounds = new Rectangle();
-        player1Bounds.set(player1Sprite.getBoundingRectangle());
-        player2Bounds = new Rectangle();
-        player2Bounds.set(player2Sprite.getBoundingRectangle());
+        AIPlayerBounds = new Rectangle();
+        userPlayerBounds = new Rectangle();
+        ballBounds = new Circle();
+        screenBounds = new Rectangle(0, 0, screenWidth, screenHeight);
+        screenLeft = screenBounds.getX();
+        screenBottom = screenBounds.getY();
+        screenTop = screenBounds.getHeight();
+        screenRight = screenBounds.getWidth();
+
 
         //setup sounds
         ballSound = Gdx.audio.newSound(Gdx.files.internal("kick.mp3"));
@@ -76,16 +98,71 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
 
 	@Override
 	public void render () {
-		Gdx.gl.glClearColor(0, 0, 0, 0);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		batch.begin();
-        //draw resources
-		batch.draw(field, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        player1Sprite.draw(batch);
-        player2Sprite.draw(batch);
-        ballSprite.draw(batch);
-		batch.end();
+
+        float delta = Gdx.graphics.getDeltaTime();
+
+        update(delta);
+        draw();
 	}
+
+    private void draw(){
+        Gdx.gl.glClearColor(0, 0, 0, 0);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        batch.begin();
+        batch.draw(field, 0, 0, screenWidth, screenHeight);
+        AIPlayerSprite.draw(batch);
+        userPlayerSprite.draw(batch);
+        ballSprite.draw(batch);
+        batch.end();
+    }
+
+    private void update(float time){
+        // BallSprite Location
+        ballRect = ballSprite.getBoundingRectangle();
+        float ballLeft = ballRect.getX();
+        float ballBottom = ballRect.getY();
+        float ballTop = ballBottom + ballRect.getHeight();
+        float ballRight = ballLeft + ballRect.getWidth();
+
+        //AIPlayer Location
+        AIPlayerBounds.set(AIPlayerSprite.getBoundingRectangle());
+
+        //userPlayer Location
+        userPlayerBounds.set(userPlayerSprite.getBoundingRectangle());
+
+        if (Intersector.overlaps(ballBounds, AIPlayerBounds) || Intersector.overlaps(ballBounds, userPlayerBounds)){
+            cheer.play();
+            ballXSpeed = -ballXSpeed;
+            ballYSpeed = -ballYSpeed;
+        }
+
+//        if(ballRight < screenLeft || ballLeft > screenRight)
+//        {
+//            cheer.play();
+//            ballYSpeed = 0.0f;
+//            ballXSpeed = 0.0f;
+//            ballX = screenWidth/2;
+//            ballY = screenHeight/2;
+//        }
+
+        if(ballLeft < screenLeft || ballRight > screenRight)
+        {
+            ballSound.play();
+            ballXSpeed = -ballXSpeed;
+        }
+
+        if(ballBottom < screenBottom || ballTop > screenTop)
+        {
+            ballSound.play();
+            ballYSpeed = -ballYSpeed;
+        }
+
+        ballX += time * ballXSpeed;
+        ballY += time * ballYSpeed;
+        ballBounds.set(ballX, ballY, 12);
+        ballSprite.setPosition(ballX, ballY);
+
+    }
 
     @Override
     public boolean keyDown(int keycode) {
@@ -114,7 +191,9 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         if (ballBounds.contains(screenX, screenY)){
             //ball touched
             ballSound.play();
-        } else if (player1Bounds.contains(screenX, screenY) || player2Bounds.contains(screenX, screenY)) {
+            ballXSpeed = -screenWidth/4;
+            ballYSpeed = screenHeight/3;
+        } else if (AIPlayerBounds.contains(screenX, screenY) || userPlayerBounds.contains(screenX, screenY)) {
             //player touched
             cheer.play();
         }
