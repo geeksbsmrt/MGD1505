@@ -85,15 +85,16 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         //setup ball sprite
         ballTexture = new Texture("SoccerBall.png");
         ballSprite = new Sprite(ballTexture);
-        //ballSprite.setOriginCenter();
-        ballSprite.setSize(64, 64);
-        ballX = screenWidth/2;
-        ballY = screenHeight/2;
+//        ballSprite.setOriginCenter();
+        ballSprite.setSize(48, 48);
+        ballX = screenWidth/2 - ballSprite.getWidth()/2;
+        ballY = screenHeight/2 - ballSprite.getHeight()/2;
 
         // set bounds
         AIPlayerBounds = new Rectangle();
         userPlayerBounds = new Rectangle();
         ballBounds = new Circle();
+        ballBounds.set(ballX, ballY, 24);
         screenBounds = new Rectangle(0, 0, screenWidth, screenHeight);
         screenLeft = screenBounds.getX();
         screenBottom = screenBounds.getY();
@@ -204,7 +205,6 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
 
         ballX += time * ballXSpeed;
         ballY += time * ballYSpeed;
-        ballBounds.set(ballX, ballY, 24);
         ballSprite.setPosition(ballX, ballY);
 
     }
@@ -233,7 +233,7 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 
         //check if ball or players touched
-        if (ballBounds.contains(screenX, screenY)){
+        if (ballBounds.contains(screenX, screenY) && ballXSpeed == 0 && ballYSpeed == 0){
             //ball touched
             ballSound.stop();
             ballSound.play();
