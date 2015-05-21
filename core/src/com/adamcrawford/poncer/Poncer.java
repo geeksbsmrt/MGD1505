@@ -85,8 +85,8 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         //setup ball sprite
         ballTexture = new Texture("SoccerBall.png");
         ballSprite = new Sprite(ballTexture);
-        ballSprite.setOriginCenter();
-        ballSprite.setSize(48, 48);
+        //ballSprite.setOriginCenter();
+        ballSprite.setSize(64, 64);
         ballX = screenWidth/2;
         ballY = screenHeight/2;
 
@@ -112,6 +112,8 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         AIBitmapFont = generator.generateFont(parameter);
         userBitmapFont.setColor(Color.WHITE);
         AIBitmapFont.setColor(Color.WHITE);
+        userScoreString = String.valueOf(userScore);
+        AIScoreString = String.valueOf(AIScore);
 
 
         //setup sounds
@@ -137,7 +139,7 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         userPlayerSprite.draw(batch);
         ballSprite.draw(batch);
         userBitmapFont.draw(batch, userScoreString, (screenWidth/2)+(screenWidth/4) +100, (screenHeight/2) + 75);
-        AIBitmapFont.draw(batch, userScoreString, (screenWidth/2)-(screenWidth/4)-200, (screenHeight/2) + 75);
+        AIBitmapFont.draw(batch, AIScoreString, (screenWidth/2)-(screenWidth/4)-200, (screenHeight/2) + 75);
         batch.end();
     }
 
@@ -164,6 +166,13 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
 
 //        if(ballRight < screenLeft || ballLeft > screenRight)
 //        {
+//            if(ballRight < screenLeft) {
+//                userScore++;
+//                userScoreString = String.valueOf(userScore);
+//            } else {
+//                AIScore++;
+//                AIScoreString = String.valueOf(AIScore);
+//            }
 //            cheer.stop();
 //            cheer.play();
 //            ballYSpeed = 0.0f;
