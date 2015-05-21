@@ -85,8 +85,8 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         //setup ball sprite
         ballTexture = new Texture("SoccerBall.png");
         ballSprite = new Sprite(ballTexture);
+        ballSprite.setOriginCenter();
         ballSprite.setSize(48, 48);
-        //ballSprite.setOriginCenter();
         ballX = screenWidth/2;
         ballY = screenHeight/2;
 
@@ -112,8 +112,7 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         AIBitmapFont = generator.generateFont(parameter);
         userBitmapFont.setColor(Color.WHITE);
         AIBitmapFont.setColor(Color.WHITE);
-        userScoreString = String.valueOf(userScore);
-        AIScoreString = String.valueOf(AIScore);
+
 
         //setup sounds
         ballSound = Gdx.audio.newSound(Gdx.files.internal("kick.mp3"));
@@ -177,8 +176,10 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         {
             if(ballLeft < screenLeft) {
                 userScore++;
+                userScoreString = String.valueOf(userScore);
             } else {
                 AIScore++;
+                AIScoreString = String.valueOf(AIScore);
             }
             ballSound.stop();
             ballSound.play();
