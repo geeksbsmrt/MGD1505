@@ -10,10 +10,14 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
@@ -39,6 +43,12 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
     float screenBottom;
     float screenTop;
     float screenRight;
+    int AIScore;
+    String AIScoreString;
+    BitmapFont AIBitmapFont;
+    int userScore;
+    String userScoreString;
+    BitmapFont userBitmapFont;
 
     Sound ballSound;
     Sound cheer;
@@ -90,6 +100,20 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         screenTop = screenBounds.getHeight();
         screenRight = screenBounds.getWidth();
 
+        //set scores
+        userScore = 0;
+        AIScore = 0;
+        FileHandle fontFile = Gdx.files.internal("Roboto.ttf");
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(fontFile);
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 150;
+
+        userBitmapFont = generator.generateFont(parameter);
+        AIBitmapFont = generator.generateFont(parameter);
+        userBitmapFont.setColor(Color.WHITE);
+        AIBitmapFont.setColor(Color.WHITE);
+        userScoreString = String.valueOf(userScore);
+        AIScoreString = String.valueOf(AIScore);
 
         //setup sounds
         ballSound = Gdx.audio.newSound(Gdx.files.internal("kick.mp3"));
@@ -113,6 +137,8 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         AIPlayerSprite.draw(batch);
         userPlayerSprite.draw(batch);
         ballSprite.draw(batch);
+        userBitmapFont.draw(batch, userScoreString, (screenWidth/2)+(screenWidth/4) +100, (screenHeight/2) + 75);
+        AIBitmapFont.draw(batch, userScoreString, (screenWidth/2)-(screenWidth/4)-200, (screenHeight/2) + 75);
         batch.end();
     }
 
@@ -131,6 +157,7 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         userPlayerBounds.set(userPlayerSprite.getBoundingRectangle());
 
         if (Intersector.overlaps(ballBounds, AIPlayerBounds) || Intersector.overlaps(ballBounds, userPlayerBounds)){
+            cheer.stop();
             cheer.play();
             ballXSpeed = -ballXSpeed;
             ballYSpeed = -ballYSpeed;
@@ -138,6 +165,7 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
 
 //        if(ballRight < screenLeft || ballLeft > screenRight)
 //        {
+//            cheer.stop();
 //            cheer.play();
 //            ballYSpeed = 0.0f;
 //            ballXSpeed = 0.0f;
@@ -147,12 +175,19 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
 
         if(ballLeft < screenLeft || ballRight > screenRight)
         {
+            if(ballLeft < screenLeft) {
+                userScore++;
+            } else {
+                AIScore++;
+            }
+            ballSound.stop();
             ballSound.play();
             ballXSpeed = -ballXSpeed;
         }
 
         if(ballBottom < screenBottom || ballTop > screenTop)
         {
+            ballSound.stop();
             ballSound.play();
             ballYSpeed = -ballYSpeed;
         }
@@ -190,11 +225,13 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         //check if ball or players touched
         if (ballBounds.contains(screenX, screenY)){
             //ball touched
+            ballSound.stop();
             ballSound.play();
             ballXSpeed = -screenWidth/4;
             ballYSpeed = screenHeight/3;
         } else if (AIPlayerBounds.contains(screenX, screenY) || userPlayerBounds.contains(screenX, screenY)) {
             //player touched
+            cheer.stop();
             cheer.play();
         }
         return false;
