@@ -19,7 +19,6 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Circle;
-import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 
 public class Poncer extends ApplicationAdapter implements InputProcessor {
@@ -49,6 +48,8 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
     int userScore;
     String userScoreString;
     BitmapFont userBitmapFont;
+    String winnerString = "Game Over\n";
+    BitmapFont winnerFont;
 
     Sound ballSound;
     Sound cheer;
@@ -117,6 +118,9 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         userScoreString = String.valueOf(userScore);
         AIScoreString = String.valueOf(AIScore);
 
+        winnerFont = generator.generateFont(parameter);
+        winnerFont.setColor(Color.WHITE);
+
         //setup sounds
         ballSound = Gdx.audio.newSound(Gdx.files.internal("kick.mp3"));
         cheer = Gdx.audio.newSound(Gdx.files.internal("Cheer.mp3"));
@@ -127,11 +131,19 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
 
         float delta = Gdx.graphics.getDeltaTime();
 
-        update(delta);
-        draw();
+        if (userScore < 3 && AIScore < 3) {
+            update(delta);
+            play();
+        } else if (userScore == 3){
+            //Player Wins
+            end("user");
+        } else {
+            //AI Wins
+            end("ai");
+        }
 	}
 
-    private void draw(){
+    private void play(){
         Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.begin();
@@ -139,8 +151,24 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         AIPlayerSprite.draw(batch);
         userPlayerSprite.draw(batch);
         ballSprite.draw(batch);
-        userBitmapFont.draw(batch, userScoreString, (screenWidth/2)+(screenWidth/4) +100, (screenHeight/2) + 75);
+        userBitmapFont.draw(batch, userScoreString, (screenWidth / 2) + (screenWidth / 4) + 100, (screenHeight / 2) + 75);
         AIBitmapFont.draw(batch, AIScoreString, (screenWidth/2)-(screenWidth/4)-200, (screenHeight/2) + 75);
+        batch.end();
+    }
+
+    private void end(String winner){
+
+        if (winner.equals("user")){
+            winnerString += "You won!";
+        } else {
+            winnerString += "You lost";
+        }
+
+        Gdx.gl.glClearColor(0, 0, 0, 0);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        batch.begin();
+        batch.draw(field, 0, 0, screenWidth, screenHeight);
+        winnerFont.draw(batch, winnerString, screenWidth/2, screenHeight/2);
         batch.end();
     }
 
@@ -158,42 +186,21 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         //userPlayer Location
         userPlayerBounds.set(userPlayerSprite.getBoundingRectangle());
 
-        if (Intersector.overlaps(ballRect, AIPlayerBounds) || Intersector.overlaps(ballRect, userPlayerBounds)){
-            cheer.stop();
-            cheer.play();
-            ballXSpeed = -ballXSpeed;
-            ballYSpeed = -ballYSpeed;
-        }
-
-//        if(ballRight < screenLeft || ballLeft > screenRight)
-//        {
-//            if(ballRight < screenLeft) {
-//                userScore++;
-//                userScoreString = String.valueOf(userScore);
-//            } else {
-//                AIScore++;
-//                AIScoreString = String.valueOf(AIScore);
-//            }
-//            cheer.stop();
-//            cheer.play();
-//            ballYSpeed = 0.0f;
-//            ballXSpeed = 0.0f;
-//            ballX = screenWidth/2;
-//            ballY = screenHeight/2;
-//        }
-
-        if(ballLeft < screenLeft || ballRight > screenRight)
+        if(ballRight < screenLeft || ballLeft > screenRight)
         {
-            if(ballLeft < screenLeft) {
+            if(ballRight < screenLeft) {
                 userScore++;
                 userScoreString = String.valueOf(userScore);
             } else {
                 AIScore++;
                 AIScoreString = String.valueOf(AIScore);
             }
-            ballSound.stop();
-            ballSound.play();
-            ballXSpeed = -ballXSpeed;
+            cheer.stop();
+            cheer.play();
+            ballYSpeed = 0.0f;
+            ballXSpeed = 0.0f;
+            ballX = screenWidth/2 - ballSprite.getWidth()/2;
+            ballY = screenHeight/2 - ballSprite.getHeight()/2;
         }
 
         if(ballBottom < screenBottom || ballTop > screenTop)
