@@ -48,7 +48,7 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
     int userScore;
     String userScoreString;
     BitmapFont userBitmapFont;
-    String winnerString = "Game Over\n";
+    String winnerString = "Game Over";
     BitmapFont winnerFont;
 
     Sound ballSound;
@@ -159,9 +159,9 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
     private void end(String winner){
 
         if (winner.equals("user")){
-            winnerString += "You won!";
+            winnerString = winnerString + "\nYou won!";
         } else {
-            winnerString += "You lost";
+            winnerString = winnerString + "\nYou lost";
         }
 
         Gdx.gl.glClearColor(0, 0, 0, 0);
