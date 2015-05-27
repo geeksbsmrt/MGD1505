@@ -2,5 +2,8 @@
 <resources>
 
     <string name="app_name">Poncer</string>
+    <string name="gameOver">Game Over</string>
+    <string name="playerWins">You Won!</string>
+    <string name="aiWins">You Lost</string>
 
 </resources>

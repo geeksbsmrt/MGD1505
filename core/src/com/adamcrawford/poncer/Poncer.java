@@ -85,16 +85,17 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         //setup ball sprite
         ballTexture = new Texture("SoccerBall.png");
         ballSprite = new Sprite(ballTexture);
-//        ballSprite.setOriginCenter();
         ballSprite.setSize(48, 48);
         ballX = screenWidth/2 - ballSprite.getWidth()/2;
         ballY = screenHeight/2 - ballSprite.getHeight()/2;
+        ballSprite.setPosition(ballX, ballY);
 
         // set bounds
         AIPlayerBounds = new Rectangle();
         userPlayerBounds = new Rectangle();
         ballBounds = new Circle();
-        ballBounds.set(ballX, ballY, 24);
+        ballBounds.set(ballX + ballSprite.getWidth()/2, ballY + ballSprite.getHeight()/2, 24);
+
         screenBounds = new Rectangle(0, 0, screenWidth, screenHeight);
         screenLeft = screenBounds.getX();
         screenBottom = screenBounds.getY();
@@ -115,7 +116,6 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         AIBitmapFont.setColor(Color.WHITE);
         userScoreString = String.valueOf(userScore);
         AIScoreString = String.valueOf(AIScore);
-
 
         //setup sounds
         ballSound = Gdx.audio.newSound(Gdx.files.internal("kick.mp3"));
@@ -158,7 +158,7 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         //userPlayer Location
         userPlayerBounds.set(userPlayerSprite.getBoundingRectangle());
 
-        if (Intersector.overlaps(ballBounds, AIPlayerBounds) || Intersector.overlaps(ballBounds, userPlayerBounds)){
+        if (Intersector.overlaps(ballRect, AIPlayerBounds) || Intersector.overlaps(ballRect, userPlayerBounds)){
             cheer.stop();
             cheer.play();
             ballXSpeed = -ballXSpeed;
@@ -206,7 +206,6 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         ballX += time * ballXSpeed;
         ballY += time * ballYSpeed;
         ballSprite.setPosition(ballX, ballY);
-
     }
 
     @Override
