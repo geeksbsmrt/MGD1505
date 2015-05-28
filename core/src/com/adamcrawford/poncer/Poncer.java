@@ -14,11 +14,12 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Rectangle;
 
 public class Poncer extends ApplicationAdapter implements InputProcessor {
@@ -31,9 +32,7 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
 	Sprite AIPlayerSprite;
     Texture userPlayerTexture;
     Sprite userPlayerSprite;
-    Texture ballTexture;
     Sprite ballSprite;
-    Circle ballBounds;
     Rectangle ballRect;
     Rectangle AIPlayerBounds;
     Rectangle userPlayerBounds;
@@ -50,6 +49,15 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
     BitmapFont userBitmapFont;
     String winnerString = "Game Over";
     BitmapFont winnerFont;
+
+    private static final int FRAME_COLS = 2;
+    private static final int FRAME_ROWS = 4;
+
+    Animation rollAnim;
+    Texture rollSheet;
+    TextureRegion[] rollFrames;
+    TextureRegion currentFrame;
+    float stateTime;
 
     Sound ballSound;
     Sound cheer;
@@ -83,19 +91,31 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         userPlayerSprite.setScale(4);
         userPlayerSprite.setCenter(screenWidth - 30, screenHeight / 2);
 
+        //setup Ball SpriteSheet
+        rollSheet = new Texture("ui_ball.png");
+        TextureRegion[][] tmp = TextureRegion.split(rollSheet, rollSheet.getWidth()/FRAME_COLS, rollSheet.getHeight()/FRAME_ROWS);
+        rollFrames = new TextureRegion[FRAME_COLS * (FRAME_ROWS -1)];
+        int index = 0;
+        for (int i = 0, j = FRAME_ROWS -1; i < j; i++) {
+            for (int k = 0, l = FRAME_COLS; k < l; k++) {
+                rollFrames[index++] = tmp[i][k];
+            }
+        }
+        rollAnim = new Animation(0.05f, rollFrames);
+        stateTime = 0f;
+
         //setup ball sprite
-        ballTexture = new Texture("SoccerBall.png");
-        ballSprite = new Sprite(ballTexture);
-        ballSprite.setSize(48, 48);
+        ballSprite = new Sprite(rollFrames[0]);
+        Gdx.app.log("Width", String.valueOf(rollFrames[0].getRegionWidth()));
+        Gdx.app.log("Height", String.valueOf(rollFrames[0].getRegionHeight()));
         ballX = screenWidth/2 - ballSprite.getWidth()/2;
         ballY = screenHeight/2 - ballSprite.getHeight()/2;
         ballSprite.setPosition(ballX, ballY);
+        ballSprite.setOriginCenter();
 
         // set bounds
         AIPlayerBounds = new Rectangle();
         userPlayerBounds = new Rectangle();
-        ballBounds = new Circle();
-        ballBounds.set(ballX + ballSprite.getWidth()/2, ballY + ballSprite.getHeight()/2, 24);
 
         screenBounds = new Rectangle(0, 0, screenWidth, screenHeight);
         screenLeft = screenBounds.getX();
@@ -150,7 +170,7 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         batch.draw(field, 0, 0, screenWidth, screenHeight);
         AIPlayerSprite.draw(batch);
         userPlayerSprite.draw(batch);
-        ballSprite.draw(batch);
+        batch.draw(currentFrame, ballX, ballY);
         userBitmapFont.draw(batch, userScoreString, (screenWidth / 2) + (screenWidth / 4) + 100, (screenHeight / 2) + 75);
         AIBitmapFont.draw(batch, AIScoreString, (screenWidth/2)-(screenWidth/4)-200, (screenHeight/2) + 75);
         batch.end();
@@ -173,6 +193,14 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
     }
 
     private void update(float time){
+        if (ballXSpeed > 0){
+            stateTime -= time;
+        } else {
+            stateTime += time;
+        }
+
+        currentFrame = rollAnim.getKeyFrame(stateTime, true);
+        ballSprite.setTexture(currentFrame.getTexture());
         // BallSprite Location
         ballRect = ballSprite.getBoundingRectangle();
         float ballLeft = ballRect.getX();
@@ -239,7 +267,7 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 
         //check if ball or players touched
-        if (ballBounds.contains(screenX, screenY) && ballXSpeed == 0 && ballYSpeed == 0){
+        if (ballRect.contains(screenX, screenY) && ballXSpeed == 0 && ballYSpeed == 0){
             //ball touched
             ballSound.stop();
             ballSound.play();
