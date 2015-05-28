@@ -21,6 +21,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 
 public class Poncer extends ApplicationAdapter implements InputProcessor {
 
@@ -37,6 +38,7 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
     Rectangle AIPlayerBounds;
     Rectangle userPlayerBounds;
     Rectangle screenBounds;
+    Rectangle userScreenHalf;
     float screenLeft;
     float screenBottom;
     float screenTop;
@@ -66,6 +68,9 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
     float ballYSpeed;
     float ballX;
     float ballY;
+
+    Vector2 touchPoint = new Vector2();
+    float userYSpeed;
 
 	@Override
 	public void create () {
@@ -122,6 +127,8 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         screenBottom = screenBounds.getY();
         screenTop = screenBounds.getHeight();
         screenRight = screenBounds.getWidth();
+
+        userScreenHalf = new Rectangle(screenWidth/2, 0, screenWidth/2, screenHeight);
 
         //set scores
         userScore = 0;
@@ -213,6 +220,24 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
 
         //userPlayer Location
         userPlayerBounds.set(userPlayerSprite.getBoundingRectangle());
+        float userBottom = userPlayerBounds.getY();
+        float userTop = userBottom + userPlayerBounds.getHeight();
+
+        if (userTop > screenHeight){
+            //contain player to top of screen
+            userPlayerSprite.setY(screenHeight-userPlayerBounds.getHeight());
+        }
+
+        if (userBottom < 0){
+            //contain player to bottom of screen
+            userPlayerSprite.setY(0);
+        }
+
+        if (ballRect.overlaps(AIPlayerBounds) || ballRect.overlaps(userPlayerBounds)){
+            ballSound.stop();
+            ballSound.play();
+            ballXSpeed = -ballXSpeed;
+        }
 
         if(ballRight < screenLeft || ballLeft > screenRight)
         {
@@ -260,6 +285,7 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        touchPoint.set(screenX, screenY);
         return false;
     }
 
@@ -278,11 +304,29 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
             cheer.stop();
             cheer.play();
         }
+        userYSpeed = 0f;
         return false;
     }
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
+        if (userScreenHalf.contains(screenX, screenY)){
+            //Move user Sprite
+            Vector2 newTouch = new Vector2(screenX, screenY);
+            // delta will now hold the difference between the last and the current touch positions
+            // delta.x > 0 means the touch moved to the right, delta.x < 0 means a move to the left
+            Vector2 delta = newTouch.cpy().sub(touchPoint);
+            if (delta.y > 0) {
+                //Player up
+                userYSpeed = screenHeight/3;
+            } else if (delta.y < 0) {
+                //Player down
+                userYSpeed = -screenHeight/3;
+            } else {
+                userYSpeed = 0f;
+            }
+            touchPoint = newTouch;
+        }
         return false;
     }
 
