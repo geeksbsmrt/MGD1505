@@ -70,7 +70,8 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
     float ballY;
 
     Vector2 touchPoint = new Vector2();
-    float userYSpeed;
+    float userY;
+    float userYMove;
 
 	@Override
 	public void create () {
@@ -95,6 +96,8 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         userPlayerSprite = new Sprite(userPlayerTexture);
         userPlayerSprite.setScale(4);
         userPlayerSprite.setCenter(screenWidth - 30, screenHeight / 2);
+        userY = userPlayerSprite.getY();
+        userYMove = 0;
 
         //setup Ball SpriteSheet
         rollSheet = new Texture("ui_ball.png");
@@ -266,6 +269,10 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         ballX += time * ballXSpeed;
         ballY += time * ballYSpeed;
         ballSprite.setPosition(ballX, ballY);
+
+        userPlayerSprite.translateY(-userYMove);
+        userYMove = 0;
+        //userPlayerSprite.setPosition(userX, userY);
     }
 
     @Override
@@ -299,12 +306,8 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
             ballSound.play();
             ballXSpeed = -screenWidth/4;
             ballYSpeed = screenHeight/3;
-        } else if (AIPlayerBounds.contains(screenX, screenY) || userPlayerBounds.contains(screenX, screenY)) {
-            //player touched
-            cheer.stop();
-            cheer.play();
         }
-        userYSpeed = 0f;
+        userYMove = 0f;
         return false;
     }
 
@@ -318,12 +321,12 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
             Vector2 delta = newTouch.cpy().sub(touchPoint);
             if (delta.y > 0) {
                 //Player up
-                userYSpeed = screenHeight/3;
+                userYMove = delta.y;
             } else if (delta.y < 0) {
                 //Player down
-                userYSpeed = -screenHeight/3;
+                userYMove = delta.y;
             } else {
-                userYSpeed = 0f;
+                userYMove = 0f;
             }
             touchPoint = newTouch;
         }
