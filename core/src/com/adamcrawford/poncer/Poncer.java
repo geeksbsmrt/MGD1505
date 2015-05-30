@@ -13,6 +13,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -23,6 +24,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 
 public class Poncer extends ApplicationAdapter implements InputProcessor {
 
@@ -76,6 +78,10 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
     Vector2 touchPoint = new Vector2();
     float userY;
 
+    float aiY;
+    float aiPlayerYSpeed;
+    float lastAIPlayerYSpeed;
+
     Texture pauseTexture;
     Sprite pauseSprite;
     Rectangle pauseBounds;
@@ -89,6 +95,8 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
     }
     GAME_STATE state;
 
+    OrthographicCamera camera;
+
 	@Override
 	public void create () {
 
@@ -96,6 +104,10 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
 
         screenWidth = Gdx.graphics.getWidth();
         screenHeight = Gdx.graphics.getHeight();
+
+        camera = new OrthographicCamera(screenWidth, screenHeight);
+        camera.setToOrtho(false, screenWidth, screenHeight);
+        camera.update();
 
 		batch = new SpriteBatch();
         // Setup Field graphic
@@ -117,6 +129,8 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
 		AIPlayerSprite = new Sprite(AIPlayerTexture);
         AIPlayerSprite.setScale(3);
         AIPlayerSprite.setPosition(30, screenHeight / 2);
+        aiY = AIPlayerSprite.getY();
+        aiPlayerYSpeed = 0;
 
         //setup Player2 sprite
         userPlayerTexture = new Texture("player2.gif");
@@ -206,6 +220,7 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.begin();
+        batch.setProjectionMatrix(camera.combined);
         batch.draw(field, 0, 0, screenWidth, screenHeight);
         if (state == GAME_STATE.PLAY) {
             pauseSprite.draw(batch);
@@ -232,6 +247,7 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.begin();
+        batch.setProjectionMatrix(camera.combined);
         batch.draw(field, 0, 0, screenWidth, screenHeight);
         winnerFont.draw(batch, glyphLayout, screenWidth/2 - glyphLayout.width/2, screenHeight/2 + glyphLayout.height/2);
         batch.end();
@@ -245,9 +261,7 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
             pauseBounds.set(pauseSprite.getBoundingRectangle());
         }
 
-        if (ballXSpeed > 0){
-            stateTime -= time;
-        } else if (ballXSpeed < 0) {
+        if (ballXSpeed != 0){
             stateTime += time;
         } else {
             stateTime = 0;
@@ -264,6 +278,8 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
 
         //AIPlayer Location
         AIPlayerBounds.set(AIPlayerSprite.getBoundingRectangle());
+        float aiTop = AIPlayerBounds.getY();
+        float aiBottom = aiTop + AIPlayerBounds.getHeight();
 
         //userPlayer Location
         userPlayerBounds.set(userPlayerSprite.getBoundingRectangle());
@@ -278,6 +294,16 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         if (userBottom < 0){
             //contain player to bottom of screen
             userPlayerSprite.setY(0 + userPlayerSprite.getHeight());
+        }
+
+        if (aiTop > screenTop){
+            AIPlayerSprite.setY(screenTop - AIPlayerSprite.getHeight() * 2);
+            aiPlayerYSpeed = -aiPlayerYSpeed;
+        }
+
+        if (aiBottom < screenBottom){
+            AIPlayerSprite.setY(0 + AIPlayerSprite.getHeight());
+            aiPlayerYSpeed = -aiPlayerYSpeed;
         }
 
         if (ballRect.overlaps(AIPlayerBounds) || ballRect.overlaps(userPlayerBounds)){
@@ -313,6 +339,9 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         ballX += time * ballXSpeed;
         ballY += time * ballYSpeed;
         ballSprite.setPosition(ballX, ballY);
+
+        aiY += time* aiPlayerYSpeed;
+        AIPlayerSprite.setPosition(AIPlayerSprite.getX(), aiY);
     }
 
     @Override
@@ -340,30 +369,39 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 
+        Vector3 translatedCoordinates = new Vector3(screenX, screenY, 0);
+        camera.unproject(translatedCoordinates);
+
         //check if ball or players touched
-        if (ballRect.contains(screenX, screenY) && ballXSpeed == 0 && ballYSpeed == 0){
+        if (ballRect.contains(translatedCoordinates.x, translatedCoordinates.y) && ballXSpeed == 0 && ballYSpeed == 0){
             //ball touched
             ballSound.stop();
             ballSound.play();
             ballXSpeed = -screenWidth/4;
             ballYSpeed = screenHeight/3;
+            if (aiPlayerYSpeed == 0) {
+                aiPlayerYSpeed = screenHeight / 5;
+            }
         }
 
-        if (userPlayerBounds.contains(screenX, screenY)){
+        if (userPlayerBounds.contains(translatedCoordinates.x, translatedCoordinates.y)){
             cheer.stop();
             cheer.play();
         }
 
-        if (pauseBounds.contains(screenX, screenY) && state == GAME_STATE.PLAY){
+        if (pauseBounds.contains(translatedCoordinates.x, translatedCoordinates.y) && state == GAME_STATE.PLAY){
             Gdx.app.log("Pause", "True");
             lastBallXSpeed = ballXSpeed;
             lastBallYSpeed = ballYSpeed;
+            lastAIPlayerYSpeed = aiPlayerYSpeed;
             ballXSpeed = 0.0f;
             ballYSpeed = 0.0f;
+            aiPlayerYSpeed = 0.0f;
             state = GAME_STATE.PAUSED;
-        } else if (pauseBounds.contains(screenX, screenY) && state == GAME_STATE.PAUSED){
+        } else if (pauseBounds.contains(translatedCoordinates.x, translatedCoordinates.y) && state == GAME_STATE.PAUSED){
             ballXSpeed = lastBallXSpeed;
             ballYSpeed = lastBallYSpeed;
+            aiPlayerYSpeed = lastAIPlayerYSpeed;
             state = GAME_STATE.PLAY;
         }
         return false;
