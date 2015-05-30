@@ -73,6 +73,10 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
     float userY;
     float userYMove;
 
+    Texture pauseTexture;
+    Sprite pauseSprite;
+    Rectangle pauseBounds;
+
 	@Override
 	public void create () {
 
@@ -85,17 +89,22 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         // Setup Field graphic
 		field = new Texture("soccerField.jpg");
 
+        pauseTexture = new Texture("pause.png");
+        pauseSprite = new Sprite(pauseTexture);
+        pauseSprite.setScale(0.5f);
+        pauseBounds = new Rectangle();
+
         //Setup player 1 sprite
         AIPlayerTexture = new Texture("player1.gif");
 		AIPlayerSprite = new Sprite(AIPlayerTexture);
-        AIPlayerSprite.setScale(4);
-        AIPlayerSprite.setCenter(30, screenHeight / 2);
+        AIPlayerSprite.setScale(3);
+        AIPlayerSprite.setPosition(40, screenHeight / 2);
 
         //setup Player2 sprite
         userPlayerTexture = new Texture("player2.gif");
         userPlayerSprite = new Sprite(userPlayerTexture);
-        userPlayerSprite.setScale(4);
-        userPlayerSprite.setCenter(screenWidth - 30, screenHeight / 2);
+        userPlayerSprite.setScale(3);
+        userPlayerSprite.setPosition(screenWidth - 50, (screenHeight / 2));
         userY = userPlayerSprite.getY();
         userYMove = 0;
 
@@ -114,8 +123,6 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
 
         //setup ball sprite
         ballSprite = new Sprite(rollFrames[0]);
-        Gdx.app.log("Width", String.valueOf(rollFrames[0].getRegionWidth()));
-        Gdx.app.log("Height", String.valueOf(rollFrames[0].getRegionHeight()));
         ballX = screenWidth/2 - ballSprite.getWidth()/2;
         ballY = screenHeight/2 - ballSprite.getHeight()/2;
         ballSprite.setPosition(ballX, ballY);
@@ -178,6 +185,7 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.begin();
         batch.draw(field, 0, 0, screenWidth, screenHeight);
+        pauseSprite.draw(batch);
         AIPlayerSprite.draw(batch);
         userPlayerSprite.draw(batch);
         batch.draw(currentFrame, ballX, ballY);
@@ -203,10 +211,15 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
     }
 
     private void update(float time){
+        pauseSprite.setPosition(150, 150);
+        pauseBounds.set(pauseSprite.getBoundingRectangle());
+
         if (ballXSpeed > 0){
             stateTime -= time;
-        } else {
+        } else if (ballXSpeed < 0) {
             stateTime += time;
+        } else {
+            stateTime = 0;
         }
 
         currentFrame = rollAnim.getKeyFrame(stateTime, true);
@@ -222,18 +235,19 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         AIPlayerBounds.set(AIPlayerSprite.getBoundingRectangle());
 
         //userPlayer Location
+        userPlayerSprite.translateY(userYMove);
         userPlayerBounds.set(userPlayerSprite.getBoundingRectangle());
         float userBottom = userPlayerBounds.getY();
         float userTop = userBottom + userPlayerBounds.getHeight();
 
         if (userTop > screenHeight){
             //contain player to top of screen
-            userPlayerSprite.setY(screenHeight-userPlayerBounds.getHeight());
+            userPlayerSprite.setY(screenHeight - userPlayerSprite.getHeight());
         }
 
         if (userBottom < 0){
             //contain player to bottom of screen
-            userPlayerSprite.setY(0);
+            userPlayerSprite.setY(0 + userPlayerSprite.getHeight());
         }
 
         if (ballRect.overlaps(AIPlayerBounds) || ballRect.overlaps(userPlayerBounds)){
@@ -269,10 +283,6 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         ballX += time * ballXSpeed;
         ballY += time * ballYSpeed;
         ballSprite.setPosition(ballX, ballY);
-
-        userPlayerSprite.translateY(-userYMove);
-        userYMove = 0;
-        //userPlayerSprite.setPosition(userX, userY);
     }
 
     @Override
@@ -292,6 +302,7 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+
         touchPoint.set(screenX, screenY);
         return false;
     }
@@ -307,6 +318,18 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
             ballXSpeed = -screenWidth/4;
             ballYSpeed = screenHeight/3;
         }
+
+        if (userPlayerBounds.contains(screenX, screenY)){
+            cheer.stop();
+            cheer.play();
+        }
+
+        if (pauseBounds.contains(screenX, screenY)){
+            Gdx.app.log("Pause", "True");
+            ballXSpeed = 0.0f;
+            ballYSpeed = 0.0f;
+        }
+
         userYMove = 0f;
         return false;
     }
@@ -314,20 +337,18 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
         if (userScreenHalf.contains(screenX, screenY)){
+
+            userYMove = 0f;
             //Move user Sprite
             Vector2 newTouch = new Vector2(screenX, screenY);
             // delta will now hold the difference between the last and the current touch positions
             // delta.x > 0 means the touch moved to the right, delta.x < 0 means a move to the left
             Vector2 delta = newTouch.cpy().sub(touchPoint);
-            if (delta.y > 0) {
+            if (delta.y != 0) {
                 //Player up
-                userYMove = delta.y;
-            } else if (delta.y < 0) {
-                //Player down
-                userYMove = delta.y;
-            } else {
-                userYMove = 0f;
+                userYMove = -delta.y;
             }
+
             touchPoint = newTouch;
         }
         return false;
