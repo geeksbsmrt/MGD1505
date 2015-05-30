@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -51,6 +52,7 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
     BitmapFont userBitmapFont;
     String winnerString = "Game Over";
     BitmapFont winnerFont;
+    GlyphLayout glyphLayout = new GlyphLayout();
 
     private static final int FRAME_COLS = 2;
     private static final int FRAME_ROWS = 4;
@@ -66,16 +68,26 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
 
     float ballXSpeed;
     float ballYSpeed;
+    float lastBallXSpeed;
+    float lastBallYSpeed;
     float ballX;
     float ballY;
 
     Vector2 touchPoint = new Vector2();
     float userY;
-    float userYMove;
 
     Texture pauseTexture;
     Sprite pauseSprite;
     Rectangle pauseBounds;
+    Texture playTexture;
+    Sprite playSprite;
+
+    enum GAME_STATE{
+        PLAY,
+        PAUSED,
+        OVER
+    }
+    GAME_STATE state;
 
 	@Override
 	public void create () {
@@ -92,13 +104,19 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         pauseTexture = new Texture("pause.png");
         pauseSprite = new Sprite(pauseTexture);
         pauseSprite.setScale(0.5f);
+        pauseSprite.setPosition(150, 150);
         pauseBounds = new Rectangle();
+
+        playTexture = new Texture("play.png");
+        playSprite = new Sprite(playTexture);
+        playSprite.setScale(0.5f);
+        playSprite.setPosition(150, 150);
 
         //Setup player 1 sprite
         AIPlayerTexture = new Texture("player1.gif");
 		AIPlayerSprite = new Sprite(AIPlayerTexture);
         AIPlayerSprite.setScale(3);
-        AIPlayerSprite.setPosition(40, screenHeight / 2);
+        AIPlayerSprite.setPosition(30, screenHeight / 2);
 
         //setup Player2 sprite
         userPlayerTexture = new Texture("player2.gif");
@@ -106,7 +124,6 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         userPlayerSprite.setScale(3);
         userPlayerSprite.setPosition(screenWidth - 50, (screenHeight / 2));
         userY = userPlayerSprite.getY();
-        userYMove = 0;
 
         //setup Ball SpriteSheet
         rollSheet = new Texture("ui_ball.png");
@@ -156,11 +173,14 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         AIScoreString = String.valueOf(AIScore);
 
         winnerFont = generator.generateFont(parameter);
-        winnerFont.setColor(Color.WHITE);
+        winnerFont.setColor(Color.BLACK);
 
         //setup sounds
         ballSound = Gdx.audio.newSound(Gdx.files.internal("kick.mp3"));
         cheer = Gdx.audio.newSound(Gdx.files.internal("Cheer.mp3"));
+
+        state = GAME_STATE.PLAY;
+
 	}
 
 	@Override
@@ -171,12 +191,14 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         if (userScore < 3 && AIScore < 3) {
             update(delta);
             play();
-        } else if (userScore == 3){
+        } else if (userScore == 3 && state != GAME_STATE.OVER){
             //Player Wins
             end("user");
-        } else {
+            state = GAME_STATE.OVER;
+        } else if (state != GAME_STATE.OVER) {
             //AI Wins
             end("ai");
+            state = GAME_STATE.OVER;
         }
 	}
 
@@ -185,7 +207,11 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.begin();
         batch.draw(field, 0, 0, screenWidth, screenHeight);
-        pauseSprite.draw(batch);
+        if (state == GAME_STATE.PLAY) {
+            pauseSprite.draw(batch);
+        } else {
+            playSprite.draw(batch);
+        }
         AIPlayerSprite.draw(batch);
         userPlayerSprite.draw(batch);
         batch.draw(currentFrame, ballX, ballY);
@@ -201,18 +227,23 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         } else {
             winnerString = winnerString + "\nYou lost";
         }
+        glyphLayout.setText(winnerFont, winnerString);
 
         Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.begin();
         batch.draw(field, 0, 0, screenWidth, screenHeight);
-        winnerFont.draw(batch, winnerString, screenWidth/2, screenHeight/2);
+        winnerFont.draw(batch, glyphLayout, screenWidth/2 - glyphLayout.width/2, screenHeight/2 + glyphLayout.height/2);
         batch.end();
     }
 
     private void update(float time){
-        pauseSprite.setPosition(150, 150);
-        pauseBounds.set(pauseSprite.getBoundingRectangle());
+
+        if (state == GAME_STATE.PAUSED) {
+            pauseBounds.set(playSprite.getBoundingRectangle());
+        } else {
+            pauseBounds.set(pauseSprite.getBoundingRectangle());
+        }
 
         if (ballXSpeed > 0){
             stateTime -= time;
@@ -235,7 +266,6 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         AIPlayerBounds.set(AIPlayerSprite.getBoundingRectangle());
 
         //userPlayer Location
-        userPlayerSprite.translateY(userYMove);
         userPlayerBounds.set(userPlayerSprite.getBoundingRectangle());
         float userBottom = userPlayerBounds.getY();
         float userTop = userBottom + userPlayerBounds.getHeight();
@@ -324,32 +354,36 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
             cheer.play();
         }
 
-        if (pauseBounds.contains(screenX, screenY)){
+        if (pauseBounds.contains(screenX, screenY) && state == GAME_STATE.PLAY){
             Gdx.app.log("Pause", "True");
+            lastBallXSpeed = ballXSpeed;
+            lastBallYSpeed = ballYSpeed;
             ballXSpeed = 0.0f;
             ballYSpeed = 0.0f;
+            state = GAME_STATE.PAUSED;
+        } else if (pauseBounds.contains(screenX, screenY) && state == GAME_STATE.PAUSED){
+            ballXSpeed = lastBallXSpeed;
+            ballYSpeed = lastBallYSpeed;
+            state = GAME_STATE.PLAY;
         }
-
-        userYMove = 0f;
         return false;
     }
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
         if (userScreenHalf.contains(screenX, screenY)){
-
-            userYMove = 0f;
             //Move user Sprite
             Vector2 newTouch = new Vector2(screenX, screenY);
-            // delta will now hold the difference between the last and the current touch positions
-            // delta.x > 0 means the touch moved to the right, delta.x < 0 means a move to the left
+            Gdx.app.log("touchPoint", String.valueOf(touchPoint.y));
+            Gdx.app.log("newTouch", String.valueOf(newTouch.y));
             Vector2 delta = newTouch.cpy().sub(touchPoint);
+            Gdx.app.log("DELTA: ", String.valueOf(delta.y));
             if (delta.y != 0) {
-                //Player up
-                userYMove = -delta.y;
+                userPlayerSprite.translateY(-delta.y);
             }
 
-            touchPoint = newTouch;
+            touchPoint.set(newTouch);
+            touchUp((int) newTouch.x, (int)newTouch.y, pointer, 0);
         }
         return false;
     }
