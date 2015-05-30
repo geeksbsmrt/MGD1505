@@ -89,6 +89,7 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
     Sprite playSprite;
 
     enum GAME_STATE{
+        READY,
         PLAY,
         PAUSED,
         OVER
@@ -96,6 +97,9 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
     GAME_STATE state;
 
     OrthographicCamera camera;
+
+    BitmapFont pauseFont;
+    String pauseString = "Game Paused";
 
 	@Override
 	public void create () {
@@ -189,12 +193,14 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         winnerFont = generator.generateFont(parameter);
         winnerFont.setColor(Color.BLACK);
 
+        pauseFont = generator.generateFont(parameter);
+        pauseFont.setColor(Color.RED);
+
         //setup sounds
         ballSound = Gdx.audio.newSound(Gdx.files.internal("kick.mp3"));
         cheer = Gdx.audio.newSound(Gdx.files.internal("Cheer.mp3"));
 
-        state = GAME_STATE.PLAY;
-
+        state = GAME_STATE.READY;
 	}
 
 	@Override
@@ -222,16 +228,18 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         batch.begin();
         batch.setProjectionMatrix(camera.combined);
         batch.draw(field, 0, 0, screenWidth, screenHeight);
-        if (state == GAME_STATE.PLAY) {
-            pauseSprite.draw(batch);
-        } else {
-            playSprite.draw(batch);
-        }
         AIPlayerSprite.draw(batch);
         userPlayerSprite.draw(batch);
         batch.draw(currentFrame, ballX, ballY);
         userBitmapFont.draw(batch, userScoreString, (screenWidth / 2) + (screenWidth / 4) + 100, (screenHeight / 2) + 75);
         AIBitmapFont.draw(batch, AIScoreString, (screenWidth/2)-(screenWidth/4)-200, (screenHeight/2) + 75);
+        if (state == GAME_STATE.PLAY) {
+            pauseSprite.draw(batch);
+        } else if (state == GAME_STATE.PAUSED){
+            glyphLayout.setText(pauseFont, pauseString);
+            pauseFont.draw(batch, glyphLayout, screenWidth/2 - glyphLayout.width/2, screenHeight/2 + glyphLayout.height/2);
+            playSprite.draw(batch);
+        }
         batch.end();
     }
 
@@ -375,6 +383,7 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         //check if ball or players touched
         if (ballRect.contains(translatedCoordinates.x, translatedCoordinates.y) && ballXSpeed == 0 && ballYSpeed == 0){
             //ball touched
+            state = GAME_STATE.PLAY;
             ballSound.stop();
             ballSound.play();
             ballXSpeed = -screenWidth/4;
@@ -382,11 +391,6 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
             if (aiPlayerYSpeed == 0) {
                 aiPlayerYSpeed = screenHeight / 5;
             }
-        }
-
-        if (userPlayerBounds.contains(translatedCoordinates.x, translatedCoordinates.y)){
-            cheer.stop();
-            cheer.play();
         }
 
         if (pauseBounds.contains(translatedCoordinates.x, translatedCoordinates.y) && state == GAME_STATE.PLAY){
