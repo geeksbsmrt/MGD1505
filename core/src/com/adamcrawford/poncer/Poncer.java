@@ -270,9 +270,9 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         float userBottom = userPlayerBounds.getY();
         float userTop = userBottom + userPlayerBounds.getHeight();
 
-        if (userTop > screenHeight){
+        if (userTop > screenTop){
             //contain player to top of screen
-            userPlayerSprite.setY(screenHeight - userPlayerSprite.getHeight());
+            userPlayerSprite.setY(screenTop - userPlayerSprite.getHeight()*2);
         }
 
         if (userBottom < 0){
@@ -374,10 +374,7 @@ public class Poncer extends ApplicationAdapter implements InputProcessor {
         if (userScreenHalf.contains(screenX, screenY)){
             //Move user Sprite
             Vector2 newTouch = new Vector2(screenX, screenY);
-            Gdx.app.log("touchPoint", String.valueOf(touchPoint.y));
-            Gdx.app.log("newTouch", String.valueOf(newTouch.y));
             Vector2 delta = newTouch.cpy().sub(touchPoint);
-            Gdx.app.log("DELTA: ", String.valueOf(delta.y));
             if (delta.y != 0) {
                 userPlayerSprite.translateY(-delta.y);
             }
