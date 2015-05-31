@@ -19,6 +19,10 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 
 /**
  * Author:  Adam Crawford
@@ -28,6 +32,10 @@ import com.badlogic.gdx.math.Vector3;
  * Purpose: TODO Minimum 2 sentence description
  */
 public class Play implements InputProcessor, Screen {
+
+    Stage stage;
+    TextButton.TextButtonStyle style;
+    TextButton menuButton;
     float screenHeight;
     float screenWidth;
     SpriteBatch batch;
@@ -105,8 +113,11 @@ public class Play implements InputProcessor, Screen {
     Poncer poncer;
 
 
-    public Play(Poncer g){
+    public Play(final Poncer g){
         state = GAME_STATE.LOADING;
+
+        stage = new Stage();
+        style = new TextButton.TextButtonStyle();
 
         poncer = g; // ** get Game parameter **//
         Gdx.input.setInputProcessor(this);
@@ -186,7 +197,25 @@ public class Play implements InputProcessor, Screen {
         FileHandle fontFile = Gdx.files.internal("Roboto.ttf");
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(fontFile);
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        FreeTypeFontGenerator.FreeTypeFontParameter menuParam = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 150;
+
+        menuParam.size = 75;
+
+        BitmapFont font = generator.generateFont(menuParam);
+        style.font = font;
+        style.fontColor = Color.BLUE;
+        menuButton = new TextButton("Main Menu", style);
+        menuButton.setPosition(Gdx.graphics.getWidth() / 2 - menuButton.getWidth() / 2, menuButton.getHeight());
+        menuButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+                Gdx.app.log("Play", "Menu Pressed");
+                g.showMenu();
+            }
+        });
+
+        stage.addActor(menuButton);
 
         userBitmapFont = generator.generateFont(parameter);
         AIBitmapFont = generator.generateFont(parameter);
@@ -295,6 +324,7 @@ public class Play implements InputProcessor, Screen {
 
     private void end(String winner){
 
+        Gdx.input.setInputProcessor(stage);
         if (winner.equals("user")){
             winnerString = winnerString + "\nYou won!";
         } else {
@@ -309,6 +339,7 @@ public class Play implements InputProcessor, Screen {
         batch.draw(field, 0, 0, screenWidth, screenHeight);
         winnerFont.draw(batch, glyphLayout, screenWidth/2 - glyphLayout.width/2, screenHeight/2 + glyphLayout.height/2);
         batch.end();
+        stage.draw();
     }
 
     private void update(float time){
