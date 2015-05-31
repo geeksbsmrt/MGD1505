@@ -430,7 +430,7 @@ public class Play implements InputProcessor, Screen {
         camera.unproject(translatedCoordinates);
 
         //check if ball or players touched
-        if (ballRect.contains(translatedCoordinates.x, translatedCoordinates.y) ){
+        if (ballRect.contains(translatedCoordinates.x, translatedCoordinates.y) && ballXSpeed == 0 && ballYSpeed == 0 && state != GAME_STATE.PAUSED){
             //ball touched
             state = GAME_STATE.PLAY;
             ballSound.stop();
