@@ -17,6 +17,7 @@ public class Poncer extends Game implements ApplicationListener {
 	Splash splashScreen;
 	Menu menuScreen;
     Help helpScreen;
+    End endScreen;
 
 	@Override
 	public void create () {
@@ -53,5 +54,10 @@ public class Poncer extends Game implements ApplicationListener {
     public void showHelp(){
         helpScreen = new Help(this);
         setScreen(helpScreen);
+    }
+
+    public void showEnd(String winner){
+        endScreen = new End(this, winner);
+        setScreen(endScreen);
     }
 }

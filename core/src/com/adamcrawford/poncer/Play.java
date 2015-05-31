@@ -19,10 +19,6 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 
 /**
  * Author:  Adam Crawford
@@ -33,9 +29,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
  */
 public class Play implements InputProcessor, Screen {
 
-    Stage stage;
-    TextButton.TextButtonStyle style;
-    TextButton menuButton;
     float screenHeight;
     float screenWidth;
     SpriteBatch batch;
@@ -60,8 +53,6 @@ public class Play implements InputProcessor, Screen {
     int userScore;
     String userScoreString;
     BitmapFont userBitmapFont;
-    String winnerString = "Game Over";
-    BitmapFont winnerFont;
     GlyphLayout glyphLayout = new GlyphLayout();
 
     private static final int FRAME_COLS = 2;
@@ -115,9 +106,6 @@ public class Play implements InputProcessor, Screen {
 
     public Play(final Poncer g){
         state = GAME_STATE.LOADING;
-
-        stage = new Stage();
-        style = new TextButton.TextButtonStyle();
 
         poncer = g; // ** get Game parameter **//
         Gdx.input.setInputProcessor(this);
@@ -202,30 +190,12 @@ public class Play implements InputProcessor, Screen {
 
         menuParam.size = 75;
 
-        BitmapFont font = generator.generateFont(menuParam);
-        style.font = font;
-        style.fontColor = Color.BLUE;
-        menuButton = new TextButton("Main Menu", style);
-        menuButton.setPosition(Gdx.graphics.getWidth() / 2 - menuButton.getWidth() / 2, menuButton.getHeight());
-        menuButton.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                Gdx.app.log("Play", "Menu Pressed");
-                g.showMenu();
-            }
-        });
-
-        stage.addActor(menuButton);
-
         userBitmapFont = generator.generateFont(parameter);
         AIBitmapFont = generator.generateFont(parameter);
         userBitmapFont.setColor(Color.WHITE);
         AIBitmapFont.setColor(Color.WHITE);
         userScoreString = String.valueOf(userScore);
         AIScoreString = String.valueOf(AIScore);
-
-        winnerFont = generator.generateFont(parameter);
-        winnerFont.setColor(Color.BLACK);
 
         pauseFont = generator.generateFont(parameter);
         pauseFont.setColor(Color.RED);
@@ -323,23 +293,7 @@ public class Play implements InputProcessor, Screen {
     }
 
     private void end(String winner){
-
-        Gdx.input.setInputProcessor(stage);
-        if (winner.equals("user")){
-            winnerString = winnerString + "\nYou won!";
-        } else {
-            winnerString = winnerString + "\nYou lost";
-        }
-        glyphLayout.setText(winnerFont, winnerString);
-
-        Gdx.gl.glClearColor(0, 0, 0, 0);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        batch.begin();
-        batch.setProjectionMatrix(camera.combined);
-        batch.draw(field, 0, 0, screenWidth, screenHeight);
-        winnerFont.draw(batch, glyphLayout, screenWidth/2 - glyphLayout.width/2, screenHeight/2 + glyphLayout.height/2);
-        batch.end();
-        stage.draw();
+        poncer.showEnd(winner);
     }
 
     private void update(float time){
