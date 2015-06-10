@@ -81,6 +81,7 @@ public class Play implements InputProcessor, Screen {
 
     float aiY;
     float aiPlayerYSpeed;
+    double aiPlayerSlow;
     float lastAIPlayerYSpeed;
 
     Texture pauseTexture;
@@ -143,6 +144,7 @@ public class Play implements InputProcessor, Screen {
         AIPlayerSprite.setPosition(30, screenHeight / 2);
         aiY = AIPlayerSprite.getY();
         aiPlayerYSpeed = 0;
+        aiPlayerSlow = .5;
 
         //setup Player2 sprite
         userPlayerTexture = new Texture("player2.gif");
@@ -297,7 +299,7 @@ public class Play implements InputProcessor, Screen {
         poncer.showEnd(userScore);
     }
 
-    private void update(float time){
+    private void update(float time) {
 
         if (state == GAME_STATE.PAUSED) {
             pauseBounds.set(playSprite.getBoundingRectangle());
@@ -305,7 +307,7 @@ public class Play implements InputProcessor, Screen {
             pauseBounds.set(pauseSprite.getBoundingRectangle());
         }
 
-        if (ballXSpeed != 0){
+        if (ballXSpeed != 0) {
             stateTime += time;
         } else {
             stateTime = 0;
@@ -330,24 +332,34 @@ public class Play implements InputProcessor, Screen {
         float userBottom = userPlayerBounds.getY();
         float userTop = userBottom + userPlayerBounds.getHeight();
 
-        if (userTop > screenTop){
+        if (userTop > screenTop) {
             //contain player to top of screen
-            userPlayerSprite.setY(screenTop - userPlayerSprite.getHeight()*2);
+            userPlayerSprite.setY(screenTop - userPlayerSprite.getHeight() * 2);
         }
 
-        if (userBottom < 0){
+        if (userBottom < 0) {
             //contain player to bottom of screen
             userPlayerSprite.setY(0 + userPlayerSprite.getHeight());
         }
 
-        if (aiTop > screenTop){
+        if (aiTop > screenTop) {
             AIPlayerSprite.setY(screenTop - AIPlayerSprite.getHeight() * 2);
             aiPlayerYSpeed = -aiPlayerYSpeed;
         }
 
-        if (aiBottom < 0){
+        if (aiBottom < 0) {
             AIPlayerSprite.setY(0 + AIPlayerSprite.getHeight());
             aiPlayerYSpeed = -aiPlayerYSpeed;
+        }
+
+        //TODO: FIX THIS!
+        if (aiY + AIPlayerSprite.getHeight() / 2 > ballY + ballSprite.getHeight() / 2) {
+            //ai down
+            aiPlayerYSpeed = (float) (ballYSpeed * aiPlayerSlow);
+        } else if (aiY + AIPlayerSprite.getHeight()/2 < ballY + ballSprite.getHeight()/2){
+            //ai up
+        }else {
+            aiPlayerYSpeed = 0;
         }
 
         if (ballRect.overlaps(AIPlayerBounds) || ballRect.overlaps(userPlayerBounds)){
