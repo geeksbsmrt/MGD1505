@@ -56,8 +56,8 @@ public class Poncer extends Game implements ApplicationListener {
         setScreen(helpScreen);
     }
 
-    public void showEnd(String winner){
-        endScreen = new End(this, winner);
+    public void showEnd(int score){
+        endScreen = new End(this, score);
         setScreen(endScreen);
     }
 }

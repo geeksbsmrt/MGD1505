@@ -73,6 +73,8 @@ public class Play implements InputProcessor, Screen {
     float lastBallYSpeed;
     float ballX;
     float ballY;
+    double ballMultiplier;
+    double lastMultiplier = 0;
 
     Vector2 touchPoint = new Vector2();
     float userY;
@@ -102,6 +104,8 @@ public class Play implements InputProcessor, Screen {
     String pauseString = "Game Paused";
 
     Poncer poncer;
+
+    int immerse = 0;
 
 
     public Play(final Poncer g){
@@ -166,6 +170,7 @@ public class Play implements InputProcessor, Screen {
         ballY = screenHeight/2 - ballSprite.getHeight()/2;
         ballSprite.setPosition(ballX, ballY);
         ballSprite.setOriginCenter();
+        ballMultiplier = 1;
 
         // set bounds
         AIPlayerBounds = new Rectangle();
@@ -207,7 +212,6 @@ public class Play implements InputProcessor, Screen {
         state = GAME_STATE.READY;
     }
 
-
     @Override
     public void show () {
         render(Gdx.graphics.getDeltaTime());
@@ -215,16 +219,13 @@ public class Play implements InputProcessor, Screen {
 
     @Override
     public void render (float delta) {
-        if (userScore < 3 && AIScore < 3) {
+
+        if (AIScore < 1) {
             update(delta);
             play();
-        } else if (userScore == 3 && state != GAME_STATE.OVER){
-            //Player Wins
-            end("user");
-            state = GAME_STATE.OVER;
         } else if (state != GAME_STATE.OVER) {
             //AI Wins
-            end("ai");
+            end();
             state = GAME_STATE.OVER;
         }
     }
@@ -280,7 +281,7 @@ public class Play implements InputProcessor, Screen {
         AIPlayerSprite.draw(batch);
         userPlayerSprite.draw(batch);
         userBitmapFont.draw(batch, userScoreString, (screenWidth / 2) + (screenWidth / 4) + 100, (screenHeight / 2) + 75);
-        AIBitmapFont.draw(batch, AIScoreString, (screenWidth/2)-(screenWidth/4)-200, (screenHeight/2) + 75);
+        AIBitmapFont.draw(batch, AIScoreString, (screenWidth / 2) - (screenWidth / 4) - 200, (screenHeight / 2) + 75);
         batch.draw(currentFrame, ballX, ballY);
         if (state == GAME_STATE.PLAY) {
             pauseSprite.draw(batch);
@@ -292,8 +293,8 @@ public class Play implements InputProcessor, Screen {
         batch.end();
     }
 
-    private void end(String winner){
-        poncer.showEnd(winner);
+    private void end(){
+        poncer.showEnd(userScore);
     }
 
     private void update(float time){
@@ -321,8 +322,8 @@ public class Play implements InputProcessor, Screen {
 
         //AIPlayer Location
         AIPlayerBounds.set(AIPlayerSprite.getBoundingRectangle());
-        float aiTop = AIPlayerBounds.getY();
-        float aiBottom = aiTop + AIPlayerBounds.getHeight();
+        float aiBottom = AIPlayerBounds.getY();
+        float aiTop = aiBottom + AIPlayerBounds.getHeight();
 
         //userPlayer Location
         userPlayerBounds.set(userPlayerSprite.getBoundingRectangle());
@@ -344,7 +345,7 @@ public class Play implements InputProcessor, Screen {
             aiPlayerYSpeed = -aiPlayerYSpeed;
         }
 
-        if (aiBottom < screenBottom){
+        if (aiBottom < 0){
             AIPlayerSprite.setY(0 + AIPlayerSprite.getHeight());
             aiPlayerYSpeed = -aiPlayerYSpeed;
         }
@@ -368,8 +369,10 @@ public class Play implements InputProcessor, Screen {
             cheer.play();
             ballYSpeed = 0.0f;
             ballXSpeed = 0.0f;
+            lastMultiplier = ballMultiplier;
             ballX = screenWidth/2 - ballSprite.getWidth()/2;
             ballY = screenHeight/2 - ballSprite.getHeight()/2;
+            playerScored();
         }
 
         if(ballBottom < screenBottom || ballTop > screenTop)
@@ -379,12 +382,41 @@ public class Play implements InputProcessor, Screen {
             ballYSpeed = -ballYSpeed;
         }
 
-        ballX += time * ballXSpeed;
-        ballY += time * ballYSpeed;
+        ballX += time * (ballXSpeed * ballMultiplier);
+        ballY += time * (ballYSpeed * ballMultiplier);
         ballSprite.setPosition(ballX, ballY);
 
-        aiY += time* aiPlayerYSpeed;
+        aiY += time * aiPlayerYSpeed;
         AIPlayerSprite.setPosition(AIPlayerSprite.getX(), aiY);
+    }
+
+    private void playerScored() {
+        if (userScore%3==0){
+            switch (immerse){
+                case 0:{
+                    //Speed up ball
+                    ballMultiplier = ballMultiplier + 0.05;
+                    Gdx.app.log("Multiplier", String.valueOf(ballMultiplier));
+                    immerse = 1;
+                    break;
+                }
+                case 1:{
+                    //Add players
+
+                    immerse = 2;
+                    break;
+                }
+                case 2:{
+                    //Increase AI
+
+                    immerse = 0;
+                    break;
+                }
+                default:{
+                    break;
+                }
+            }
+        }
     }
 
     @Override
@@ -423,7 +455,7 @@ public class Play implements InputProcessor, Screen {
             ballXSpeed = -screenWidth/4;
             ballYSpeed = screenHeight/3;
             if (aiPlayerYSpeed == 0) {
-                aiPlayerYSpeed = screenHeight / 5;
+                aiPlayerYSpeed = ballYSpeed ;
             }
         }
 

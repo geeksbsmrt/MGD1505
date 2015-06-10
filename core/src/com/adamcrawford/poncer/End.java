@@ -38,7 +38,7 @@ public class End implements Screen {
 
     Poncer poncer;
 
-    public End(final Poncer g, String winner){
+    public End(final Poncer g, int score){
 
         stage = new Stage();
         style = new TextButton.TextButtonStyle();
@@ -73,11 +73,7 @@ public class End implements Screen {
 
         stage.addActor(menuButton);
 
-        if (winner.equals("user")){
-            winnerString = winnerString + "\nYou won!";
-        } else {
-            winnerString = winnerString + "\nYou lost";
-        }
+        winnerString = winnerString + "\nPoints: " + score;
     }
     @Override
     public void show() {
@@ -109,7 +105,6 @@ public class End implements Screen {
     @Override
     public void resume() {
     }
-
 
     @Override
     public void hide() {
