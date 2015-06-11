@@ -216,12 +216,14 @@ public class Play implements InputProcessor, Screen {
         ballSound = Gdx.audio.newSound(Gdx.files.internal("kick.mp3"));
         cheer = Gdx.audio.newSound(Gdx.files.internal("Cheer.mp3"));
 
-        Timer.schedule(new Timer.Task() {
+        Timer.Task task = new Timer.Task() {
             @Override
             public void run() {
                 calcBlock();
             }
-        }, 0, 5);
+        };
+
+        Timer.schedule(task, 0, 5);
 
         state = GAME_STATE.READY;
     }
@@ -258,6 +260,7 @@ public class Play implements InputProcessor, Screen {
         ballXSpeed = 0.0f;
         ballYSpeed = 0.0f;
         aiPlayerYSpeed = 0.0f;
+        Timer.instance().stop();
         state = GAME_STATE.PAUSED;
     }
 
@@ -266,6 +269,7 @@ public class Play implements InputProcessor, Screen {
         ballXSpeed = lastBallXSpeed;
         ballYSpeed = lastBallYSpeed;
         aiPlayerYSpeed = lastAIPlayerYSpeed;
+        Timer.instance().start();
         state = GAME_STATE.PLAY;
     }
 
@@ -284,6 +288,7 @@ public class Play implements InputProcessor, Screen {
         cheer.dispose();
         ballSound.dispose();
         rollSheet.dispose();
+        Timer.instance().clear();
     }
 
     private void play(){
@@ -309,6 +314,7 @@ public class Play implements InputProcessor, Screen {
 
     private void end(){
         poncer.showEnd(userScore);
+        dispose();
     }
 
     private void update(float time) {
@@ -459,7 +465,7 @@ public class Play implements InputProcessor, Screen {
                 if (rand > 0) {
                     aiPlayerSlow = .75f;
                 } else {
-                    aiPlayerSlow = 2;
+                    aiPlayerSlow = 1;
                 }
                 break;
             }
@@ -468,7 +474,7 @@ public class Play implements InputProcessor, Screen {
                 if (rand > 0) {
                     aiPlayerSlow = .8f;
                 } else {
-                    aiPlayerSlow = 2;
+                    aiPlayerSlow = 1;
                 }
                 break;
             }
@@ -477,7 +483,7 @@ public class Play implements InputProcessor, Screen {
                 if (rand > 0) {
                     aiPlayerSlow = .85f;
                 } else {
-                    aiPlayerSlow = 2;
+                    aiPlayerSlow = 1;
                 }
                 break;
             }
@@ -486,7 +492,7 @@ public class Play implements InputProcessor, Screen {
                 if (rand > 0) {
                     aiPlayerSlow = .9f;
                 } else {
-                    aiPlayerSlow = 2;
+                    aiPlayerSlow = 1;
                 }
                 break;
             }
@@ -495,7 +501,7 @@ public class Play implements InputProcessor, Screen {
                 if (rand > 0) {
                     aiPlayerSlow = .95f;
                 } else {
-                    aiPlayerSlow = 2;
+                    aiPlayerSlow = 1;
                 }
                 break;
             }
@@ -539,8 +545,19 @@ public class Play implements InputProcessor, Screen {
             state = GAME_STATE.PLAY;
             ballSound.stop();
             ballSound.play();
-            ballXSpeed = -screenWidth/4;
-            ballYSpeed = screenHeight/3;
+            int yRand = new Random().nextInt(2);
+            int xRand = new Random().nextInt(2);
+            if (yRand > 0) {
+                ballYSpeed = screenHeight / 3;
+            } else {
+                ballYSpeed = -screenHeight / 3;
+            }
+
+            if (xRand > 0){
+                ballXSpeed = -screenWidth / 4;
+            } else {
+                ballXSpeed = screenWidth / 4;
+            }
         }
 
         if (pauseBounds.contains(translatedCoordinates.x, translatedCoordinates.y) && state == GAME_STATE.PLAY){
