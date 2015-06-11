@@ -570,7 +570,7 @@ public class Play implements InputProcessor, Screen {
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
-        if (userScreenHalf.contains(screenX, screenY)){
+        if (userScreenHalf.contains(screenX, screenY) && state != GAME_STATE.PAUSED){
             //Move user Sprite
             Vector2 newTouch = new Vector2(screenX, screenY);
             Vector2 touchDelta = newTouch.cpy().sub(touchPoint);
