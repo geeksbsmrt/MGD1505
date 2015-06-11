@@ -19,6 +19,9 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Timer;
+
+import java.util.Random;
 
 /**
  * Author:  Adam Crawford
@@ -81,7 +84,7 @@ public class Play implements InputProcessor, Screen {
 
     float aiY;
     float aiPlayerYSpeed;
-    double aiPlayerSlow;
+    float aiPlayerSlow;
     float lastAIPlayerYSpeed;
 
     Texture pauseTexture;
@@ -107,6 +110,7 @@ public class Play implements InputProcessor, Screen {
     Poncer poncer;
 
     int immerse = 0;
+    int pass = 0;
 
 
     public Play(final Poncer g){
@@ -126,6 +130,7 @@ public class Play implements InputProcessor, Screen {
         // Setup Field graphic
         field = new Texture("soccerField.jpg");
 
+        //setup play_pause
         pauseTexture = new Texture("pause.png");
         pauseSprite = new Sprite(pauseTexture);
         pauseSprite.setScale(0.5f);
@@ -144,7 +149,7 @@ public class Play implements InputProcessor, Screen {
         AIPlayerSprite.setPosition(30, screenHeight / 2);
         aiY = AIPlayerSprite.getY();
         aiPlayerYSpeed = 0;
-        aiPlayerSlow = .5;
+        aiPlayerSlow = (float) .5;
 
         //setup Player2 sprite
         userPlayerTexture = new Texture("player2.gif");
@@ -210,6 +215,13 @@ public class Play implements InputProcessor, Screen {
         //setup sounds
         ballSound = Gdx.audio.newSound(Gdx.files.internal("kick.mp3"));
         cheer = Gdx.audio.newSound(Gdx.files.internal("Cheer.mp3"));
+
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                calcBlock();
+            }
+        }, 0, 5);
 
         state = GAME_STATE.READY;
     }
@@ -307,6 +319,7 @@ public class Play implements InputProcessor, Screen {
             pauseBounds.set(pauseSprite.getBoundingRectangle());
         }
 
+        //Animate ball
         if (ballXSpeed != 0) {
             stateTime += time;
         } else {
@@ -315,6 +328,7 @@ public class Play implements InputProcessor, Screen {
 
         currentFrame = rollAnim.getKeyFrame(stateTime, true);
         ballSprite.setTexture(currentFrame.getTexture());
+
         // BallSprite Location
         ballRect = ballSprite.getBoundingRectangle();
         float ballLeft = ballRect.getX();
@@ -332,6 +346,7 @@ public class Play implements InputProcessor, Screen {
         float userBottom = userPlayerBounds.getY();
         float userTop = userBottom + userPlayerBounds.getHeight();
 
+        //player's screen constraints
         if (userTop > screenTop) {
             //contain player to top of screen
             userPlayerSprite.setY(screenTop - userPlayerSprite.getHeight() * 2);
@@ -352,22 +367,21 @@ public class Play implements InputProcessor, Screen {
             aiPlayerYSpeed = -aiPlayerYSpeed;
         }
 
-        //TODO: FIX THIS!
-        if (aiY + AIPlayerSprite.getHeight() / 2 > ballY + ballSprite.getHeight() / 2) {
-            //ai down
-            aiPlayerYSpeed = (float) (ballYSpeed * aiPlayerSlow);
-        } else if (aiY + AIPlayerSprite.getHeight()/2 < ballY + ballSprite.getHeight()/2){
-            //ai up
-        }else {
-            aiPlayerYSpeed = 0;
-        }
-
+        //ball collisions
         if (ballRect.overlaps(AIPlayerBounds) || ballRect.overlaps(userPlayerBounds)){
             ballSound.stop();
             ballSound.play();
             ballXSpeed = -ballXSpeed;
         }
 
+        if(ballBottom < screenBottom || ballTop > screenTop)
+        {
+            ballSound.stop();
+            ballSound.play();
+            ballYSpeed = -ballYSpeed;
+        }
+
+        //scoring
         if(ballRight < screenLeft || ballLeft > screenRight)
         {
             if(ballRight < screenLeft) {
@@ -387,16 +401,21 @@ public class Play implements InputProcessor, Screen {
             playerScored();
         }
 
-        if(ballBottom < screenBottom || ballTop > screenTop)
-        {
-            ballSound.stop();
-            ballSound.play();
-            ballYSpeed = -ballYSpeed;
-        }
-
+        //ball movement
         ballX += time * (ballXSpeed * ballMultiplier);
         ballY += time * (ballYSpeed * ballMultiplier);
         ballSprite.setPosition(ballX, ballY);
+
+        //AI movement
+        if (aiY + AIPlayerSprite.getHeight() / 2 > ballY + ballSprite.getHeight() / 2) {
+            //ai down
+            aiPlayerYSpeed = -Math.abs(ballYSpeed) * aiPlayerSlow;
+        } else if (aiY + AIPlayerSprite.getHeight()/2 < ballY + ballSprite.getHeight()/2){
+            //ai up
+            aiPlayerYSpeed = Math.abs(ballYSpeed) * aiPlayerSlow;
+        }else {
+            aiPlayerYSpeed = 0;
+        }
 
         aiY += time * aiPlayerYSpeed;
         AIPlayerSprite.setPosition(AIPlayerSprite.getX(), aiY);
@@ -414,13 +433,15 @@ public class Play implements InputProcessor, Screen {
                 }
                 case 1:{
                     //Add players
-
                     immerse = 2;
                     break;
                 }
                 case 2:{
                     //Increase AI
-
+                    if (pass < 4){
+                        pass += 1;
+                    }
+                    Gdx.app.log("Pass:", String.valueOf(pass));
                     immerse = 0;
                     break;
                 }
@@ -429,6 +450,60 @@ public class Play implements InputProcessor, Screen {
                 }
             }
         }
+    }
+
+    private void calcBlock(){
+        switch (pass) {
+            case 0: {
+                int rand = new Random().nextInt(6);
+                if (rand > 0) {
+                    aiPlayerSlow = .75f;
+                } else {
+                    aiPlayerSlow = 2;
+                }
+                break;
+            }
+            case 1: {
+                int rand = new Random().nextInt(5);
+                if (rand > 0) {
+                    aiPlayerSlow = .8f;
+                } else {
+                    aiPlayerSlow = 2;
+                }
+                break;
+            }
+            case 2: {
+                int rand = new Random().nextInt(4);
+                if (rand > 0) {
+                    aiPlayerSlow = .85f;
+                } else {
+                    aiPlayerSlow = 2;
+                }
+                break;
+            }
+            case 3: {
+                int rand = new Random().nextInt(3);
+                if (rand > 0) {
+                    aiPlayerSlow = .9f;
+                } else {
+                    aiPlayerSlow = 2;
+                }
+                break;
+            }
+            case 4: {
+                int rand = new Random().nextInt(2);
+                if (rand > 0) {
+                    aiPlayerSlow = .95f;
+                } else {
+                    aiPlayerSlow = 2;
+                }
+                break;
+            }
+            default: {
+                break;
+            }
+        }
+        Gdx.app.log("AIPS", String.valueOf(aiPlayerSlow));
     }
 
     @Override
@@ -466,9 +541,6 @@ public class Play implements InputProcessor, Screen {
             ballSound.play();
             ballXSpeed = -screenWidth/4;
             ballYSpeed = screenHeight/3;
-            if (aiPlayerYSpeed == 0) {
-                aiPlayerYSpeed = ballYSpeed ;
-            }
         }
 
         if (pauseBounds.contains(translatedCoordinates.x, translatedCoordinates.y) && state == GAME_STATE.PLAY){
