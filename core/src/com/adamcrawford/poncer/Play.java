@@ -424,15 +424,15 @@ public class Play implements InputProcessor, Screen {
 
         //TODO: Complete Collision
         //static Player collision
-//        for (StaticPlayer staticPlayer : staticPlayers){
-//            Rectangle bounds = staticPlayer.getBounds();
-//            if (ballRect.overlaps(bounds)){
-//                ballSound.stop();
-//                ballSound.play();
-//                ballXSpeed = -ballXSpeed;
-//                ballYSpeed = -ballYSpeed;
-//            }
-//        }
+        for (StaticPlayer staticPlayer : staticPlayers){
+            Rectangle bounds = staticPlayer.getBounds();
+            if (ballRect.overlaps(bounds)){
+                ballSound.stop();
+                ballSound.play();
+                ballXSpeed = -ballXSpeed;
+                ballYSpeed = -ballYSpeed;
+            }
+        }
 
         //ball movement
         ballX += time * (ballXSpeed * ballMultiplier);
