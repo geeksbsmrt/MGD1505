@@ -54,7 +54,7 @@ public class Help implements Screen {
     Texture rollSheet;
     TextureRegion[] rollFrames;
 
-    public Help(final Poncer g){
+    public Help(final Poncer g) {
         poncer = g;
 
         batch = new SpriteBatch();
@@ -84,7 +84,7 @@ public class Help implements Screen {
         style.font = buttonFont;
         style.fontColor = Color.BLUE;
         backButton = new TextButton("Back", style);
-        backButton.setPosition(Gdx.graphics.getWidth()/2 - backButton.getWidth()/2, 0 + backButton.getHeight()*2);
+        backButton.setPosition(Gdx.graphics.getWidth() / 2 - backButton.getWidth() / 2, 0 + backButton.getHeight() * 2);
         backButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -94,19 +94,20 @@ public class Help implements Screen {
         stage.addActor(backButton);
 
         rollSheet = new Texture("ui_ball.png");
-        TextureRegion[][] tmp = TextureRegion.split(rollSheet, rollSheet.getWidth()/FRAME_COLS, rollSheet.getHeight()/FRAME_ROWS);
-        rollFrames = new TextureRegion[FRAME_COLS * (FRAME_ROWS -1)];
+        TextureRegion[][] tmp = TextureRegion.split(rollSheet, rollSheet.getWidth() / FRAME_COLS, rollSheet.getHeight() / FRAME_ROWS);
+        rollFrames = new TextureRegion[FRAME_COLS * (FRAME_ROWS - 1)];
         int index = 0;
-        for (int i = 0, j = FRAME_ROWS -1; i < j; i++) {
+        for (int i = 0, j = FRAME_ROWS - 1; i < j; i++) {
             for (int k = 0, l = FRAME_COLS; k < l; k++) {
                 rollFrames[index++] = tmp[i][k];
             }
         }
         ballSprite = new Sprite(rollFrames[0]);
-        ballX = screenWidth/2 - ballSprite.getWidth()/2;
-        ballY = screenHeight/2 - ballSprite.getHeight()/2;
+        ballX = screenWidth / 2 - ballSprite.getWidth() / 2;
+        ballY = screenHeight / 2 - ballSprite.getHeight() / 2;
         ballSprite.setPosition(ballX, ballY);
     }
+
     @Override
     public void show() {
         render(Gdx.graphics.getDeltaTime());
@@ -123,9 +124,9 @@ public class Help implements Screen {
         batch.begin();
         batch.draw(fieldTexture, 0, 0, screenWidth, screenHeight);
         titleFont.draw(batch, titleLayout, (screenWidth / 2) - (titleLayout.width / 2), (screenHeight - titleLayout.height));
-        textFont.draw(batch, ballGlyph, (screenWidth / 2) - (ballGlyph.width / 2), screenHeight/2 - ballGlyph.height*2);
+        textFont.draw(batch, ballGlyph, (screenWidth / 2) - (ballGlyph.width / 2), screenHeight / 2 - ballGlyph.height * 2);
         textFont.draw(batch, moveLayout, screenWidth - moveLayout.width - 25, moveLayout.height + 15);
-        textFont.draw(batch, winLayout, 15, screenHeight - winLayout.height -15);
+        textFont.draw(batch, winLayout, 15, screenHeight - winLayout.height - 15);
         ballSprite.draw(batch);
         batch.end();
         stage.draw();

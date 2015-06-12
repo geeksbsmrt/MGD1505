@@ -12,51 +12,51 @@ import com.badlogic.gdx.utils.Timer;
 
 public class Poncer extends Game implements ApplicationListener {
 
-	static Play playScreen;
-	Credits creditsScreen;
-	Splash splashScreen;
-	Menu menuScreen;
+    static Play playScreen;
+    Credits creditsScreen;
+    Splash splashScreen;
+    Menu menuScreen;
     Help helpScreen;
     End endScreen;
 
-	@Override
-	public void create () {
-		splashScreen = new Splash(this);
-		setScreen(splashScreen);
-		Timer.schedule(new Timer.Task() {
+    @Override
+    public void create() {
+        splashScreen = new Splash(this);
+        setScreen(splashScreen);
+        Timer.schedule(new Timer.Task() {
             @Override
             public void run() {
                 showMenu();
             }
         }, 5);
-	}
-
-	@Override
-	public void render () {
-		super.render();
     }
 
-    public void startGame(){
+    @Override
+    public void render() {
+        super.render();
+    }
+
+    public void startGame() {
         playScreen = new Play(this);
         setScreen(playScreen);
     }
 
-    public void showCredits(){
+    public void showCredits() {
         creditsScreen = new Credits(this);
         setScreen(creditsScreen);
     }
 
-    public void showMenu(){
+    public void showMenu() {
         menuScreen = new Menu(this);
         setScreen(menuScreen);
     }
 
-    public void showHelp(){
+    public void showHelp() {
         helpScreen = new Help(this);
         setScreen(helpScreen);
     }
 
-    public void showEnd(int score){
+    public void showEnd(int score) {
         endScreen = new End(this, score);
         setScreen(endScreen);
     }

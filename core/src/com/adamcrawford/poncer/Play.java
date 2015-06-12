@@ -95,13 +95,14 @@ public class Play implements InputProcessor, Screen {
     Texture playTexture;
     Sprite playSprite;
 
-    enum GAME_STATE{
+    enum GAME_STATE {
         LOADING,
         READY,
         PLAY,
         PAUSED,
         OVER
     }
+
     public GAME_STATE state;
 
     OrthographicCamera camera;
@@ -114,13 +115,13 @@ public class Play implements InputProcessor, Screen {
     int immerse = 0;
     int pass = 0;
 
-    ArrayList <StaticPlayer> staticPlayers;
-    int defensePlayers=0;
-    int offensePlayers=0;
+    ArrayList<StaticPlayer> staticPlayers;
+    int defensePlayers = 0;
+    int offensePlayers = 0;
 
     Random rand = new Random();
 
-    public Play(final Poncer g){
+    public Play(final Poncer g) {
         state = GAME_STATE.LOADING;
 
         poncer = g; // ** get Game parameter **//
@@ -167,10 +168,10 @@ public class Play implements InputProcessor, Screen {
 
         //setup Ball SpriteSheet
         rollSheet = new Texture("ui_ball.png");
-        TextureRegion[][] tmp = TextureRegion.split(rollSheet, rollSheet.getWidth()/FRAME_COLS, rollSheet.getHeight()/FRAME_ROWS);
-        rollFrames = new TextureRegion[FRAME_COLS * (FRAME_ROWS -1)];
+        TextureRegion[][] tmp = TextureRegion.split(rollSheet, rollSheet.getWidth() / FRAME_COLS, rollSheet.getHeight() / FRAME_ROWS);
+        rollFrames = new TextureRegion[FRAME_COLS * (FRAME_ROWS - 1)];
         int index = 0;
-        for (int i = 0, j = FRAME_ROWS -1; i < j; i++) {
+        for (int i = 0, j = FRAME_ROWS - 1; i < j; i++) {
             for (int k = 0, l = FRAME_COLS; k < l; k++) {
                 rollFrames[index++] = tmp[i][k];
             }
@@ -180,8 +181,8 @@ public class Play implements InputProcessor, Screen {
 
         //setup ball sprite
         ballSprite = new Sprite(rollFrames[0]);
-        ballX = screenWidth/2 - ballSprite.getWidth()/2;
-        ballY = screenHeight/2 - ballSprite.getHeight()/2;
+        ballX = screenWidth / 2 - ballSprite.getWidth() / 2;
+        ballY = screenHeight / 2 - ballSprite.getHeight() / 2;
         ballSprite.setPosition(ballX, ballY);
         ballSprite.setOriginCenter();
         ballMultiplier = 1;
@@ -196,7 +197,7 @@ public class Play implements InputProcessor, Screen {
         screenTop = screenBounds.getHeight();
         screenRight = screenBounds.getWidth();
 
-        userScreenHalf = new Rectangle(screenWidth/2, 0, screenWidth/2, screenHeight);
+        userScreenHalf = new Rectangle(screenWidth / 2, 0, screenWidth / 2, screenHeight);
 
         //set scores
         userScore = 0;
@@ -238,12 +239,12 @@ public class Play implements InputProcessor, Screen {
     }
 
     @Override
-    public void show () {
+    public void show() {
         render(Gdx.graphics.getDeltaTime());
     }
 
     @Override
-    public void render (float delta) {
+    public void render(float delta) {
 
         if (AIScore < 1) {
             update(delta);
@@ -297,13 +298,13 @@ public class Play implements InputProcessor, Screen {
         cheer.dispose();
         ballSound.dispose();
         rollSheet.dispose();
-        for (StaticPlayer staticPlayer : staticPlayers){
+        for (StaticPlayer staticPlayer : staticPlayers) {
             staticPlayer.dispose();
         }
         Timer.instance().clear();
     }
 
-    private void play(){
+    private void play() {
         Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.begin();
@@ -314,20 +315,20 @@ public class Play implements InputProcessor, Screen {
         userBitmapFont.draw(batch, userScoreString, (screenWidth / 2) + (screenWidth / 4) + 100, (screenHeight / 2) + 75);
         AIBitmapFont.draw(batch, AIScoreString, (screenWidth / 2) - (screenWidth / 4) - 200, (screenHeight / 2) + 75);
         batch.draw(currentFrame, ballX, ballY);
-        for (StaticPlayer staticPlayer : staticPlayers){
+        for (StaticPlayer staticPlayer : staticPlayers) {
             staticPlayer.draw(batch);
         }
         if (state == GAME_STATE.PLAY) {
             pauseSprite.draw(batch);
-        } else if (state == GAME_STATE.PAUSED){
+        } else if (state == GAME_STATE.PAUSED) {
             glyphLayout.setText(pauseFont, pauseString);
-            pauseFont.draw(batch, glyphLayout, screenWidth/2 - glyphLayout.width/2, screenHeight/2 + glyphLayout.height/2);
+            pauseFont.draw(batch, glyphLayout, screenWidth / 2 - glyphLayout.width / 2, screenHeight / 2 + glyphLayout.height / 2);
             playSprite.draw(batch);
         }
         batch.end();
     }
 
-    private void end(){
+    private void end() {
         poncer.showEnd(userScore);
         dispose();
     }
@@ -389,23 +390,21 @@ public class Play implements InputProcessor, Screen {
         }
 
         //ball collisions
-        if (ballRect.overlaps(AIPlayerBounds) || ballRect.overlaps(userPlayerBounds)){
+        if (ballRect.overlaps(AIPlayerBounds) || ballRect.overlaps(userPlayerBounds)) {
             ballSound.stop();
             ballSound.play();
             ballXSpeed = -ballXSpeed;
         }
 
-        if(ballBottom < screenBottom || ballTop > screenTop)
-        {
+        if (ballBottom < screenBottom || ballTop > screenTop) {
             ballSound.stop();
             ballSound.play();
             ballYSpeed = -ballYSpeed;
         }
 
         //scoring
-        if(ballRight < screenLeft || ballLeft > screenRight)
-        {
-            if(ballRight < screenLeft) {
+        if (ballRight < screenLeft || ballLeft > screenRight) {
+            if (ballRight < screenLeft) {
                 userScore++;
                 userScoreString = String.valueOf(userScore);
             } else {
@@ -417,30 +416,30 @@ public class Play implements InputProcessor, Screen {
             ballYSpeed = 0.0f;
             ballXSpeed = 0.0f;
             lastMultiplier = ballMultiplier;
-            ballX = screenWidth/2 - ballSprite.getWidth()/2;
-            ballY = screenHeight/2 - ballSprite.getHeight()/2;
+            ballX = screenWidth / 2 - ballSprite.getWidth() / 2;
+            ballY = screenHeight / 2 - ballSprite.getHeight() / 2;
             playerScored();
         }
 
         //static Player collision
-        for (StaticPlayer staticPlayer : staticPlayers){
+        for (StaticPlayer staticPlayer : staticPlayers) {
             Rectangle bounds = staticPlayer.getBounds();
             float sPlayerLeft = bounds.getX();
             float sPlayerBottom = bounds.getY();
             float sPlayerTop = sPlayerBottom + bounds.getHeight();
             float sPlayerRight = sPlayerLeft + bounds.getWidth();
-            if (ballRect.overlaps(bounds)){
-                ballSound.stop();
-                if ((userScreenHalf.contains(ballRect) && ballXSpeed > 0) || (!userScreenHalf.contains(ballRect) && ballXSpeed <0)){
-                    if (ballLeft == sPlayerRight || ballRight == sPlayerLeft){
+            if (ballRect.overlaps(bounds)) {
+                if ((userScreenHalf.contains(ballRect) && ballXSpeed > 0) || (!(userScreenHalf.contains(ballRect)) && ballXSpeed < 0)) {
+                    if (ballLeft < sPlayerRight || ballRight > sPlayerLeft) {
                         ballXSpeed = -ballXSpeed;
+                        ballSound.stop();
                         ballSound.play();
                     }
-                } else if ((ballTop == sPlayerBottom && ballYSpeed > 0)|| (ballBottom == sPlayerTop && ballYSpeed < 0)) {
+                } else if ((ballTop < sPlayerBottom && ballYSpeed > 0) || (ballBottom > sPlayerTop && ballYSpeed < 0)) {
                     ballYSpeed = -ballYSpeed;
+                    ballSound.stop();
                     ballSound.play();
                 }
-
             }
         }
 
@@ -453,10 +452,10 @@ public class Play implements InputProcessor, Screen {
         if (aiY + AIPlayerSprite.getHeight() / 2 > ballY + ballSprite.getHeight() / 2) {
             //ai down
             aiPlayerYSpeed = -Math.abs(ballYSpeed) * aiPlayerSlow;
-        } else if (aiY + AIPlayerSprite.getHeight()/2 < ballY + ballSprite.getHeight()/2){
+        } else if (aiY + AIPlayerSprite.getHeight() / 2 < ballY + ballSprite.getHeight() / 2) {
             //ai up
             aiPlayerYSpeed = Math.abs(ballYSpeed) * aiPlayerSlow;
-        }else {
+        } else {
             aiPlayerYSpeed = 0;
         }
 
@@ -464,24 +463,24 @@ public class Play implements InputProcessor, Screen {
         AIPlayerSprite.setPosition(AIPlayerSprite.getX(), aiY);
     }
 
-    private void createPlayer(StaticPlayer.TYPE type){
+    private void createPlayer(StaticPlayer.TYPE type) {
         StaticPlayer newPlayer = new StaticPlayer();
         newPlayer.init(type);
 
-        int y = (int) MathUtils.random(0, screenHeight- newPlayer.getHeight());
+        int y = (int) MathUtils.random(0, screenHeight - newPlayer.getHeight());
 
-        switch (type){
-            case OFFENSE:{
-                int x = (int) MathUtils.random(screenWidth/2, (screenWidth - newPlayer.getWidth()));
+        switch (type) {
+            case OFFENSE: {
+                int x = (int) MathUtils.random(screenWidth / 2, (screenWidth - newPlayer.getWidth()));
                 newPlayer.setX(x);
                 break;
             }
-            case DEFENSE:{
-                int x = (int) MathUtils.random(0, (screenWidth/2 - newPlayer.getWidth()));
+            case DEFENSE: {
+                int x = (int) MathUtils.random(0, (screenWidth / 2 - newPlayer.getWidth()));
                 newPlayer.setX(x);
                 break;
             }
-            default:{
+            default: {
                 break;
             }
         }
@@ -493,57 +492,57 @@ public class Play implements InputProcessor, Screen {
     }
 
     private void playerScored() {
-        if (userScore%3==0){
-            switch (immerse){
-                case 0:{
+        if (userScore % 3 == 0) {
+            switch (immerse) {
+                case 0: {
                     //Speed up ball
                     ballMultiplier = ballMultiplier + 0.05;
                     Gdx.app.log("Multiplier", String.valueOf(ballMultiplier));
                     immerse = 1;
                     break;
                 }
-                case 1:{
+                case 1: {
                     //Add players
-                    if (staticPlayers.size() < 6){
+                    if (staticPlayers.size() < 6) {
                         int random = rand.nextInt(2);
                         if (random > 0) {
-                            if (!(offensePlayers >=3)) {
+                            if (!(offensePlayers >= 3)) {
                                 createPlayer(StaticPlayer.TYPE.OFFENSE);
-                                offensePlayers +=1;
-                            } else if (!(defensePlayers >=3)) {
+                                offensePlayers += 1;
+                            } else if (!(defensePlayers >= 3)) {
                                 createPlayer(StaticPlayer.TYPE.DEFENSE);
-                                defensePlayers +=1;
+                                defensePlayers += 1;
                             }
                         } else {
-                            if (!(defensePlayers >=3)) {
+                            if (!(defensePlayers >= 3)) {
                                 createPlayer(StaticPlayer.TYPE.DEFENSE);
-                                defensePlayers +=1;
-                            } else if (!(offensePlayers >=3)) {
+                                defensePlayers += 1;
+                            } else if (!(offensePlayers >= 3)) {
                                 createPlayer(StaticPlayer.TYPE.DEFENSE);
-                                offensePlayers +=1;
+                                offensePlayers += 1;
                             }
                         }
                     }
                     immerse = 2;
                     break;
                 }
-                case 2:{
+                case 2: {
                     //Increase AI
-                    if (pass < 4){
+                    if (pass < 4) {
                         pass += 1;
                     }
                     Gdx.app.log("Pass:", String.valueOf(pass));
                     immerse = 0;
                     break;
                 }
-                default:{
+                default: {
                     break;
                 }
             }
         }
     }
 
-    private void calcBlock(){
+    private void calcBlock() {
         switch (pass) {
             case 0: {
                 int random = rand.nextInt(6);
@@ -625,7 +624,7 @@ public class Play implements InputProcessor, Screen {
         camera.unproject(translatedCoordinates);
 
         //check if ball or players touched
-        if (ballRect.contains(translatedCoordinates.x, translatedCoordinates.y) && ballXSpeed == 0 && ballYSpeed == 0 && state != GAME_STATE.PAUSED){
+        if (ballRect.contains(translatedCoordinates.x, translatedCoordinates.y) && ballXSpeed == 0 && ballYSpeed == 0 && state != GAME_STATE.PAUSED) {
             //ball touched
             state = GAME_STATE.PLAY;
             ballSound.stop();
@@ -638,16 +637,16 @@ public class Play implements InputProcessor, Screen {
                 ballYSpeed = -screenHeight / 3;
             }
 
-            if (xRand > 0){
+            if (xRand > 0) {
                 ballXSpeed = -screenWidth / 4;
             } else {
                 ballXSpeed = screenWidth / 4;
             }
         }
 
-        if (pauseBounds.contains(translatedCoordinates.x, translatedCoordinates.y) && state == GAME_STATE.PLAY){
+        if (pauseBounds.contains(translatedCoordinates.x, translatedCoordinates.y) && state == GAME_STATE.PLAY) {
             pause();
-        } else if (pauseBounds.contains(translatedCoordinates.x, translatedCoordinates.y) && state == GAME_STATE.PAUSED){
+        } else if (pauseBounds.contains(translatedCoordinates.x, translatedCoordinates.y) && state == GAME_STATE.PAUSED) {
             resume();
         }
         return false;
@@ -655,7 +654,7 @@ public class Play implements InputProcessor, Screen {
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
-        if (userScreenHalf.contains(screenX, screenY) && state != GAME_STATE.PAUSED){
+        if (userScreenHalf.contains(screenX, screenY) && state != GAME_STATE.PAUSED) {
             //Move user Sprite
             Vector2 newTouch = new Vector2(screenX, screenY);
             Vector2 touchDelta = newTouch.cpy().sub(touchPoint);
@@ -664,7 +663,7 @@ public class Play implements InputProcessor, Screen {
             }
 
             touchPoint.set(newTouch);
-            touchUp((int) newTouch.x, (int)newTouch.y, pointer, 0);
+            touchUp((int) newTouch.x, (int) newTouch.y, pointer, 0);
         }
         return false;
     }

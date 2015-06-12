@@ -38,7 +38,7 @@ public class End implements Screen {
 
     Poncer poncer;
 
-    public End(final Poncer g, int score){
+    public End(final Poncer g, int score) {
 
         stage = new Stage();
         style = new TextButton.TextButtonStyle();
@@ -75,6 +75,7 @@ public class End implements Screen {
 
         winnerString = winnerString + "\nPoints: " + score;
     }
+
     @Override
     public void show() {
         render(Gdx.graphics.getDeltaTime());

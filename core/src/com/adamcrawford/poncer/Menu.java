@@ -37,7 +37,7 @@ public class Menu implements Screen {
     String title = "Poncer";
     GlyphLayout titleLayout = new GlyphLayout();
 
-    public Menu(final Poncer g){
+    public Menu(final Poncer g) {
         poncer = g;
         stage = new Stage();
         batch = new SpriteBatch();
@@ -67,7 +67,7 @@ public class Menu implements Screen {
         });
 
         creditsButton = new TextButton("Credits", style);
-        creditsButton.setPosition(Gdx.graphics.getWidth() - Gdx.graphics.getWidth()/6 - creditsButton.getWidth()/2, Gdx.graphics.getHeight() / 2 - creditsButton.getHeight()/2);
+        creditsButton.setPosition(Gdx.graphics.getWidth() - Gdx.graphics.getWidth() / 6 - creditsButton.getWidth() / 2, Gdx.graphics.getHeight() / 2 - creditsButton.getHeight() / 2);
         creditsButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
@@ -76,7 +76,7 @@ public class Menu implements Screen {
         });
 
         helpButton = new TextButton("Help", style);
-        helpButton.setPosition(Gdx.graphics.getWidth()/2 - helpButton.getWidth()/2, helpButton.getHeight() + 25);
+        helpButton.setPosition(Gdx.graphics.getWidth() / 2 - helpButton.getWidth() / 2, helpButton.getHeight() + 25);
         helpButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
@@ -89,6 +89,7 @@ public class Menu implements Screen {
         stage.addActor(creditsButton);
         stage.addActor(helpButton);
     }
+
     @Override
     public void show() {
         render(Gdx.graphics.getDeltaTime());
@@ -101,7 +102,7 @@ public class Menu implements Screen {
         titleLayout.setText(titleFont, title);
         batch.begin();
         batch.draw(fieldTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        titleFont.draw(batch, titleLayout, (Gdx.graphics.getWidth() / 2) - (titleLayout.width/2), (Gdx.graphics.getHeight()) - (titleLayout.height/2));
+        titleFont.draw(batch, titleLayout, (Gdx.graphics.getWidth() / 2) - (titleLayout.width / 2), (Gdx.graphics.getHeight()) - (titleLayout.height / 2));
         batch.end();
         stage.draw();
 

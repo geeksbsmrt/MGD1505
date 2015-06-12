@@ -29,7 +29,7 @@ public class Splash implements Screen {
 
     Poncer poncer;
 
-    public Splash(Poncer g){
+    public Splash(Poncer g) {
         batch = new SpriteBatch();
         poncer = g;
         fieldTexture = new Texture("soccerField.jpg");
@@ -41,6 +41,7 @@ public class Splash implements Screen {
         loadingFont = generator.generateFont(parameter);
         loadingFont.setColor(Color.BLACK);
     }
+
     @Override
     public void show() {
         render(Gdx.graphics.getDeltaTime());
@@ -53,7 +54,7 @@ public class Splash implements Screen {
         loadingLayout.setText(loadingFont, loading);
         batch.begin();
         batch.draw(fieldTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        loadingFont.draw(batch, loadingLayout, (Gdx.graphics.getWidth() / 2) - (loadingLayout.width/2), (Gdx.graphics.getHeight()) - (loadingLayout.height/2));
+        loadingFont.draw(batch, loadingLayout, (Gdx.graphics.getWidth() / 2) - (loadingLayout.width / 2), (Gdx.graphics.getHeight()) - (loadingLayout.height / 2));
         batch.end();
     }
 

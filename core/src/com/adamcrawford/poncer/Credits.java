@@ -43,7 +43,7 @@ public class Credits implements Screen {
     TextButton.TextButtonStyle style;
     BitmapFont buttonFont;
 
-    public Credits(final Poncer g){
+    public Credits(final Poncer g) {
         poncer = g;
 
         batch = new SpriteBatch();
@@ -73,7 +73,7 @@ public class Credits implements Screen {
         style.font = buttonFont;
         style.fontColor = Color.BLUE;
         backButton = new TextButton("Back", style);
-        backButton.setPosition(Gdx.graphics.getWidth()/2 - backButton.getWidth()/2, backButton.getHeight()*2);
+        backButton.setPosition(Gdx.graphics.getWidth() / 2 - backButton.getWidth() / 2, backButton.getHeight() * 2);
         backButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
@@ -82,6 +82,7 @@ public class Credits implements Screen {
         });
         stage.addActor(backButton);
     }
+
     @Override
     public void show() {
         render(Gdx.graphics.getDeltaTime());
@@ -100,7 +101,7 @@ public class Credits implements Screen {
         titleFont.draw(batch, titleLayout, (Gdx.graphics.getWidth() / 2) - (titleLayout.width / 2), (Gdx.graphics.getHeight() - titleLayout.height));
         titleFont.draw(batch, authorLayout, (Gdx.graphics.getWidth() / 2) - (authorLayout.width / 2), (Gdx.graphics.getHeight() - titleLayout.height * 3));
         titleFont.draw(batch, instructorLayout, (Gdx.graphics.getWidth() / 2) - (instructorLayout.width / 2), (Gdx.graphics.getHeight() - titleLayout.height * 5));
-        assetFont.draw(batch, assetLayout, (Gdx.graphics.getWidth() / 2) - (assetLayout.width / 2), (backButton.getHeight()*4) + assetLayout.height*2);
+        assetFont.draw(batch, assetLayout, (Gdx.graphics.getWidth() / 2) - (assetLayout.width / 2), (backButton.getHeight() * 4) + assetLayout.height * 2);
 
         batch.end();
         stage.draw();

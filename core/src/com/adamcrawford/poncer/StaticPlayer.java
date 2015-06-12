@@ -14,7 +14,7 @@ import com.badlogic.gdx.math.Rectangle;
  */
 public class StaticPlayer {
 
-    private float x,y;
+    private float x, y;
     private Sprite sprite;
     private Texture texture;
 
@@ -23,38 +23,39 @@ public class StaticPlayer {
         DEFENSE
     }
 
-    public void init(TYPE type){
-        switch (type){
-            case OFFENSE:
-            {
+    public void init(TYPE type) {
+        switch (type) {
+            case OFFENSE: {
                 texture = new Texture("player2.gif");
                 sprite = new Sprite(texture);
                 sprite.setScale(3);
                 break;
             }
-            case DEFENSE:{
+            case DEFENSE: {
                 texture = new Texture("player1.gif");
                 sprite = new Sprite(texture);
                 sprite.setScale(3);
                 break;
             }
-            default:{
+            default: {
                 break;
             }
         }
     }
 
-    public float getX(){
+    public float getX() {
         return x;
     }
-    public void setX(float x){
+
+    public void setX(float x) {
         this.x = x;
     }
 
-    public float getY(){
+    public float getY() {
         return y;
     }
-    public void setY(float y){
+
+    public void setY(float y) {
         this.y = y;
     }
 
@@ -68,16 +69,16 @@ public class StaticPlayer {
     }
 
 
-    public void draw(SpriteBatch batch){
+    public void draw(SpriteBatch batch) {
         sprite.setPosition(x, y);
         sprite.draw(batch);
     }
 
-    public void dispose(){
+    public void dispose() {
         texture.dispose();
     }
 
-    public Rectangle getBounds(){
+    public Rectangle getBounds() {
         return sprite.getBoundingRectangle();
     }
 
