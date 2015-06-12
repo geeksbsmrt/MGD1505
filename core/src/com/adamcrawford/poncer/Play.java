@@ -422,15 +422,25 @@ public class Play implements InputProcessor, Screen {
             playerScored();
         }
 
-        //TODO: Complete Collision
         //static Player collision
         for (StaticPlayer staticPlayer : staticPlayers){
             Rectangle bounds = staticPlayer.getBounds();
+            float sPlayerLeft = bounds.getX();
+            float sPlayerBottom = bounds.getY();
+            float sPlayerTop = sPlayerBottom + bounds.getHeight();
+            float sPlayerRight = sPlayerLeft + bounds.getWidth();
             if (ballRect.overlaps(bounds)){
                 ballSound.stop();
-                ballSound.play();
-                ballXSpeed = -ballXSpeed;
-                ballYSpeed = -ballYSpeed;
+                if ((userScreenHalf.contains(ballRect) && ballXSpeed > 0) || (!userScreenHalf.contains(ballRect) && ballXSpeed <0)){
+                    if (ballLeft == sPlayerRight || ballRight == sPlayerLeft){
+                        ballXSpeed = -ballXSpeed;
+                        ballSound.play();
+                    }
+                } else if ((ballTop == sPlayerBottom && ballYSpeed > 0)|| (ballBottom == sPlayerTop && ballYSpeed < 0)) {
+                    ballYSpeed = -ballYSpeed;
+                    ballSound.play();
+                }
+
             }
         }
 
