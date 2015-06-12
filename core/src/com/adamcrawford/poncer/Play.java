@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -421,6 +422,7 @@ public class Play implements InputProcessor, Screen {
             playerScored();
         }
 
+        //TODO: Complete Collision
         //static Player collision
 //        for (StaticPlayer staticPlayer : staticPlayers){
 //            Rectangle bounds = staticPlayer.getBounds();
@@ -456,16 +458,17 @@ public class Play implements InputProcessor, Screen {
         StaticPlayer newPlayer = new StaticPlayer();
         newPlayer.init(type);
 
-        int y = rand.nextInt((int) (screenHeight - newPlayer.getHeight()));
-        int x = 0;
+        int y = (int) MathUtils.random(0, screenHeight- newPlayer.getHeight());
 
         switch (type){
             case OFFENSE:{
-                x = (int) (rand.nextInt((int) ((screenWidth - screenWidth/2) - newPlayer.getWidth())) + screenWidth/2);
+                int x = (int) MathUtils.random(screenWidth/2, (screenWidth - newPlayer.getWidth()));
+                newPlayer.setX(x);
                 break;
             }
             case DEFENSE:{
-                x = rand.nextInt((int) (screenWidth/2 - newPlayer.getWidth()));
+                int x = (int) MathUtils.random(0, (screenWidth/2 - newPlayer.getWidth()));
+                newPlayer.setX(x);
                 break;
             }
             default:{
@@ -474,7 +477,6 @@ public class Play implements InputProcessor, Screen {
         }
 
 
-        newPlayer.setX(x);
         newPlayer.setY(y);
 
         staticPlayers.add(newPlayer);

@@ -69,7 +69,8 @@ public class StaticPlayer {
 
 
     public void draw(SpriteBatch batch){
-        batch.draw(sprite, x, y);
+        sprite.setPosition(x, y);
+        sprite.draw(batch);
     }
 
     public void dispose(){
