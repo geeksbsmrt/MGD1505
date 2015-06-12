@@ -41,7 +41,7 @@ public class Help implements Screen {
     String title = "Help";
     String ball = "Click the ball to begin.";
     String move = "Move finger anywhere this side of screen to move player.";
-    String win = "Defend your goal and beat the computer to 3 goals to win!";
+    String win = "Score as many times as you can before your opponent scores.";
     GlyphLayout ballGlyph = new GlyphLayout();
     GlyphLayout moveLayout = new GlyphLayout();
     GlyphLayout winLayout = new GlyphLayout();

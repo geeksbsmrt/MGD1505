@@ -21,6 +21,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Timer;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -112,6 +113,11 @@ public class Play implements InputProcessor, Screen {
     int immerse = 0;
     int pass = 0;
 
+    ArrayList <StaticPlayer> staticPlayers;
+    int defensePlayers=0;
+    int offensePlayers=0;
+
+    Random rand = new Random();
 
     public Play(final Poncer g){
         state = GAME_STATE.LOADING;
@@ -225,6 +231,8 @@ public class Play implements InputProcessor, Screen {
 
         Timer.schedule(task, 0, 5);
 
+        staticPlayers = new ArrayList<>();
+
         state = GAME_STATE.READY;
     }
 
@@ -288,6 +296,9 @@ public class Play implements InputProcessor, Screen {
         cheer.dispose();
         ballSound.dispose();
         rollSheet.dispose();
+        for (StaticPlayer staticPlayer : staticPlayers){
+            staticPlayer.dispose();
+        }
         Timer.instance().clear();
     }
 
@@ -302,6 +313,9 @@ public class Play implements InputProcessor, Screen {
         userBitmapFont.draw(batch, userScoreString, (screenWidth / 2) + (screenWidth / 4) + 100, (screenHeight / 2) + 75);
         AIBitmapFont.draw(batch, AIScoreString, (screenWidth / 2) - (screenWidth / 4) - 200, (screenHeight / 2) + 75);
         batch.draw(currentFrame, ballX, ballY);
+        for (StaticPlayer staticPlayer : staticPlayers){
+            staticPlayer.draw(batch);
+        }
         if (state == GAME_STATE.PLAY) {
             pauseSprite.draw(batch);
         } else if (state == GAME_STATE.PAUSED){
@@ -407,6 +421,17 @@ public class Play implements InputProcessor, Screen {
             playerScored();
         }
 
+        //static Player collision
+//        for (StaticPlayer staticPlayer : staticPlayers){
+//            Rectangle bounds = staticPlayer.getBounds();
+//            if (ballRect.overlaps(bounds)){
+//                ballSound.stop();
+//                ballSound.play();
+//                ballXSpeed = -ballXSpeed;
+//                ballYSpeed = -ballYSpeed;
+//            }
+//        }
+
         //ball movement
         ballX += time * (ballXSpeed * ballMultiplier);
         ballY += time * (ballYSpeed * ballMultiplier);
@@ -427,6 +452,34 @@ public class Play implements InputProcessor, Screen {
         AIPlayerSprite.setPosition(AIPlayerSprite.getX(), aiY);
     }
 
+    private void createPlayer(StaticPlayer.TYPE type){
+        StaticPlayer newPlayer = new StaticPlayer();
+        newPlayer.init(type);
+
+        int y = rand.nextInt((int) (screenHeight - newPlayer.getHeight()));
+        int x = 0;
+
+        switch (type){
+            case OFFENSE:{
+                x = (int) (rand.nextInt((int) ((screenWidth - screenWidth/2) - newPlayer.getWidth())) + screenWidth/2);
+                break;
+            }
+            case DEFENSE:{
+                x = rand.nextInt((int) (screenWidth/2 - newPlayer.getWidth()));
+                break;
+            }
+            default:{
+                break;
+            }
+        }
+
+
+        newPlayer.setX(x);
+        newPlayer.setY(y);
+
+        staticPlayers.add(newPlayer);
+    }
+
     private void playerScored() {
         if (userScore%3==0){
             switch (immerse){
@@ -439,6 +492,26 @@ public class Play implements InputProcessor, Screen {
                 }
                 case 1:{
                     //Add players
+                    if (staticPlayers.size() < 6){
+                        int random = rand.nextInt(2);
+                        if (random > 0) {
+                            if (!(offensePlayers >=3)) {
+                                createPlayer(StaticPlayer.TYPE.OFFENSE);
+                                offensePlayers +=1;
+                            } else if (!(defensePlayers >=3)) {
+                                createPlayer(StaticPlayer.TYPE.DEFENSE);
+                                defensePlayers +=1;
+                            }
+                        } else {
+                            if (!(defensePlayers >=3)) {
+                                createPlayer(StaticPlayer.TYPE.DEFENSE);
+                                defensePlayers +=1;
+                            } else if (!(offensePlayers >=3)) {
+                                createPlayer(StaticPlayer.TYPE.DEFENSE);
+                                offensePlayers +=1;
+                            }
+                        }
+                    }
                     immerse = 2;
                     break;
                 }
@@ -461,8 +534,8 @@ public class Play implements InputProcessor, Screen {
     private void calcBlock(){
         switch (pass) {
             case 0: {
-                int rand = new Random().nextInt(6);
-                if (rand > 0) {
+                int random = rand.nextInt(6);
+                if (random > 0) {
                     aiPlayerSlow = .75f;
                 } else {
                     aiPlayerSlow = 1;
@@ -470,8 +543,8 @@ public class Play implements InputProcessor, Screen {
                 break;
             }
             case 1: {
-                int rand = new Random().nextInt(5);
-                if (rand > 0) {
+                int random = rand.nextInt(5);
+                if (random > 0) {
                     aiPlayerSlow = .8f;
                 } else {
                     aiPlayerSlow = 1;
@@ -479,8 +552,8 @@ public class Play implements InputProcessor, Screen {
                 break;
             }
             case 2: {
-                int rand = new Random().nextInt(4);
-                if (rand > 0) {
+                int random = rand.nextInt(4);
+                if (random > 0) {
                     aiPlayerSlow = .85f;
                 } else {
                     aiPlayerSlow = 1;
@@ -488,8 +561,8 @@ public class Play implements InputProcessor, Screen {
                 break;
             }
             case 3: {
-                int rand = new Random().nextInt(3);
-                if (rand > 0) {
+                int random = rand.nextInt(3);
+                if (random > 0) {
                     aiPlayerSlow = .9f;
                 } else {
                     aiPlayerSlow = 1;
@@ -497,8 +570,8 @@ public class Play implements InputProcessor, Screen {
                 break;
             }
             case 4: {
-                int rand = new Random().nextInt(2);
-                if (rand > 0) {
+                int random = rand.nextInt(2);
+                if (random > 0) {
                     aiPlayerSlow = .95f;
                 } else {
                     aiPlayerSlow = 1;
