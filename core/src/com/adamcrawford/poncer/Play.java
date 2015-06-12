@@ -435,7 +435,8 @@ public class Play implements InputProcessor, Screen {
                         ballSound.stop();
                         ballSound.play();
                     }
-                } else if ((ballTop < sPlayerBottom && ballYSpeed > 0) || (ballBottom > sPlayerTop && ballYSpeed < 0)) {
+                }
+                if ((ballTop < sPlayerBottom && ballYSpeed > 0) || (ballBottom > sPlayerTop && ballYSpeed < 0)) {
                     ballYSpeed = -ballYSpeed;
                     ballSound.stop();
                     ballSound.play();
