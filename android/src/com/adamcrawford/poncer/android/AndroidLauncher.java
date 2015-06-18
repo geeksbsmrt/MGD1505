@@ -12,13 +12,11 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
 import com.google.example.games.basegameutils.BaseGameUtils;
-import com.google.example.games.basegameutils.GameHelper;
 
 
 public class AndroidLauncher extends AndroidApplication implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, ActionResolver {
 
-    private GameHelper gameHelper;
     private GoogleApiClient mGoogleApiClient;
 
     private static int RC_SIGN_IN = 9001;
@@ -33,13 +31,7 @@ public class AndroidLauncher extends AndroidApplication implements GoogleApiClie
         AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
         initialize(new Poncer(this), config);
 
-//        gameHelper = new GameHelper(this, GameHelper.CLIENT_ALL);
-//        gameHelper.enableDebugLog(true);
-//        gameHelper.setup(this);
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
+        mGoogleApiClient = new GoogleApiClient.Builder(this, this, this)
                 .addApi(Games.API).addScope(Games.SCOPE_GAMES)
                 .build();
     }
@@ -47,21 +39,18 @@ public class AndroidLauncher extends AndroidApplication implements GoogleApiClie
     @Override
     public void onStart(){
         super.onStart();
-//        gameHelper.onStart(this);
         mGoogleApiClient.connect();
     }
 
     @Override
     public void onStop(){
         super.onStop();
-//        gameHelper.onStop();
         mGoogleApiClient.disconnect();
     }
 
     @Override
     public void onActivityResult(int request, int response, Intent data) {
         super.onActivityResult(request, response, data);
-//        gameHelper.onActivityResult(request, response, data);
         if (request == RC_SIGN_IN) {
             mSignInClicked = false;
             mResolvingConnectionFailure = false;
@@ -80,8 +69,7 @@ public class AndroidLauncher extends AndroidApplication implements GoogleApiClie
 
     @Override
     public boolean getSignedInGPGS() {
-//        return gameHelper.isSignedIn();
-        return true;
+        return mGoogleApiClient != null && mGoogleApiClient.isConnected();
     }
 
     @Override
@@ -90,7 +78,6 @@ public class AndroidLauncher extends AndroidApplication implements GoogleApiClie
             runOnUiThread(new Runnable(){
                 public void run() {
 //                    gameHelper.beginUserInitiatedSignIn();
-
                 }
             });
         } catch (final Exception ex) {
@@ -100,7 +87,7 @@ public class AndroidLauncher extends AndroidApplication implements GoogleApiClie
 
     @Override
     public void submitScoreGPGS(int score) {
-        Log.i("AL", "Submitting Score");
+        Log.i("AL", String.valueOf(score));
         Games.Leaderboards.submitScore(mGoogleApiClient, getString(R.string.leaderboard_all), score);
     }
 
