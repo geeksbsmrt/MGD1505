@@ -88,6 +88,8 @@ public class Menu implements Screen {
         stage.addActor(playButton);
         stage.addActor(creditsButton);
         stage.addActor(helpButton);
+
+        if (!poncer.actionResolver.getSignedInGPGS()) poncer.actionResolver.loginGPGS();
     }
 
     @Override

@@ -74,6 +74,10 @@ public class End implements Screen {
         stage.addActor(menuButton);
 
         winnerString = winnerString + "\nPoints: " + score;
+
+        if (poncer.actionResolver.getSignedInGPGS()){
+            poncer.actionResolver.submitScoreGPGS(score);
+        }
     }
 
     @Override

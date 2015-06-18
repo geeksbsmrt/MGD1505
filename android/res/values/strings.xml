@@ -5,5 +5,8 @@
     <string name="gameOver">Game Over</string>
     <string name="playerWins">You Won!</string>
     <string name="aiWins">You Lost</string>
+    <string name="app_id">715453984562</string>
+    <string name="leaderboard_all">CgkIst6Fo-kUEAIQBQ</string>
+    <string name="signin_failure">Failed</string>
 
 </resources>

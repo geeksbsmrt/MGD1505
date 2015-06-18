@@ -18,6 +18,11 @@ public class Poncer extends Game implements ApplicationListener {
     Menu menuScreen;
     Help helpScreen;
     End endScreen;
+    ActionResolver actionResolver;
+
+    public Poncer(ActionResolver actionResolver) {
+        this.actionResolver = actionResolver;
+    }
 
     @Override
     public void create() {
