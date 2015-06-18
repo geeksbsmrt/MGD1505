@@ -12,13 +12,14 @@ import com.badlogic.gdx.utils.Timer;
 
 public class Poncer extends Game implements ApplicationListener {
 
-    static Play playScreen;
+    Play playScreen;
     Credits creditsScreen;
     Splash splashScreen;
-    Menu menuScreen;
+    static Menu menuScreen;
     Help helpScreen;
     End endScreen;
     ActionResolver actionResolver;
+
 
     public Poncer(ActionResolver actionResolver) {
         this.actionResolver = actionResolver;
@@ -31,7 +32,9 @@ public class Poncer extends Game implements ApplicationListener {
         Timer.schedule(new Timer.Task() {
             @Override
             public void run() {
-                showMenu();
+                if (actionResolver.getSignedInGPGS()) {
+                    showMenu();
+                }
             }
         }, 5);
     }

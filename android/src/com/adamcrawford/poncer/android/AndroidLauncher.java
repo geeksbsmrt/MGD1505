@@ -10,14 +10,16 @@ import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.games.Games;
+import com.google.android.gms.games.leaderboard.Leaderboards;
 import com.google.example.games.basegameutils.BaseGameUtils;
 
 
 public class AndroidLauncher extends AndroidApplication implements GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener, ActionResolver {
+        GoogleApiClient.OnConnectionFailedListener, ActionResolver, ResultCallback<Leaderboards.SubmitScoreResult> {
 
-    private GoogleApiClient mGoogleApiClient;
+    private static GoogleApiClient mGoogleApiClient;
 
     private static int RC_SIGN_IN = 9001;
 
@@ -88,12 +90,17 @@ public class AndroidLauncher extends AndroidApplication implements GoogleApiClie
     @Override
     public void submitScoreGPGS(int score) {
         Log.i("AL", String.valueOf(score));
-        Games.Leaderboards.submitScore(mGoogleApiClient, getString(R.string.leaderboard_all), score);
+        if (mGoogleApiClient.isConnected()) {
+            Games.Leaderboards.submitScoreImmediate(mGoogleApiClient, getString(R.string.leaderboard_all), score).setResultCallback(this);
+        } else {
+            Log.e("AL", "Not Connected");
+            mGoogleApiClient.connect();
+        }
     }
 
     @Override
     public void unlockAchievementGPGS(String achievementId) {
-        //gameHelper.getGamesClient().unlockAchievement(achievementId);
+        Games.Achievements.unlock(mGoogleApiClient, achievementId);
     }
 
     @Override
@@ -103,13 +110,12 @@ public class AndroidLauncher extends AndroidApplication implements GoogleApiClie
 
     @Override
     public void getAchievementsGPGS() {
-        //startActivityForResult(gameHelper.getGamesClient().getAchievementsIntent(), 101);
+        startActivityForResult(Games.Achievements.getAchievementsIntent(mGoogleApiClient), 101);
     }
 
 
     @Override
     public void onConnected(Bundle bundle) {
-
     }
 
     @Override
@@ -143,5 +149,10 @@ public class AndroidLauncher extends AndroidApplication implements GoogleApiClie
         }
 
         // Put code here to display the sign-in button
+    }
+
+    @Override
+    public void onResult(Leaderboards.SubmitScoreResult submitScoreResult) {
+        Log.e("Result", submitScoreResult.getStatus().toString());
     }
 }

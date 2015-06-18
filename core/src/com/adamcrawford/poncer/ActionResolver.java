@@ -8,10 +8,10 @@ package com.adamcrawford.poncer;
  * Purpose: TODO Minimum 2 sentence description
  */
 public interface ActionResolver {
-    public boolean getSignedInGPGS();
-    public void loginGPGS();
-    public void submitScoreGPGS(int score);
-    public void unlockAchievementGPGS(String achievementId);
-    public void getLeaderboardGPGS();
-    public void getAchievementsGPGS();
+    boolean getSignedInGPGS();
+    void loginGPGS();
+    void submitScoreGPGS(int score);
+    void unlockAchievementGPGS(String achievementId);
+    void getLeaderboardGPGS();
+    void getAchievementsGPGS();
 }
