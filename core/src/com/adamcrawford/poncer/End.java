@@ -77,7 +77,7 @@ public class End implements Screen {
         fbShareButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                g.actionResolver.shareFB(score, "test");
+                g.actionResolver.shareFB(score);
             }
         });
 

@@ -194,7 +194,7 @@ public class AndroidLauncher extends AndroidApplication implements GoogleApiClie
     }
 
     @Override
-    public void shareFB(int score, String name){
+    public void shareFB(int score){
 
         if (ShareDialog.canShow(ShareOpenGraphContent.class)){
             ShareOpenGraphObject openGraphObject = new ShareOpenGraphObject.Builder()
