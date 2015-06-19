@@ -199,6 +199,7 @@ public class AndroidLauncher extends AndroidApplication implements GoogleApiClie
         if (ShareDialog.canShow(ShareOpenGraphContent.class)){
             ShareOpenGraphObject openGraphObject = new ShareOpenGraphObject.Builder()
                     .putString("og:type", "smrtgeekappsponcer:goal")
+                    .putString("og:title", "Poncer")
                     .putInt("smrtgeekappsponcer:total", score)
                     .build();
 
