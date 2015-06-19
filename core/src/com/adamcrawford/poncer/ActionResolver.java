@@ -14,4 +14,5 @@ public interface ActionResolver {
     void unlockAchievementGPGS(String achievementId);
     void getLeaderboardGPGS();
     void getAchievementsGPGS();
+    void shareFB(int score, String name);
 }

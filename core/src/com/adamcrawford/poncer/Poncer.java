@@ -18,6 +18,7 @@ public class Poncer extends Game implements ApplicationListener {
     static Menu menuScreen;
     Help helpScreen;
     End endScreen;
+    Leaderboards leaderboards;
     ActionResolver actionResolver;
 
 
@@ -67,5 +68,10 @@ public class Poncer extends Game implements ApplicationListener {
     public void showEnd(int score) {
         endScreen = new End(this, score);
         setScreen(endScreen);
+    }
+
+    public void showLeaders(){
+        leaderboards = new Leaderboards(this);
+        setScreen(leaderboards);
     }
 }

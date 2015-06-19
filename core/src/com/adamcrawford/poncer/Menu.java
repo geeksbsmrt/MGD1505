@@ -36,6 +36,7 @@ public class Menu implements Screen {
     TextButton helpButton;
     String title = "Poncer";
     GlyphLayout titleLayout = new GlyphLayout();
+    TextButton leaderButton;
 
     public Menu(final Poncer g) {
         poncer = g;
@@ -58,7 +59,7 @@ public class Menu implements Screen {
         style.font = font;
         style.fontColor = Color.BLUE;
         playButton = new TextButton("Play", style);
-        playButton.setPosition(Gdx.graphics.getWidth() / 6 - playButton.getWidth() / 2, Gdx.graphics.getHeight() / 2 - playButton.getHeight() / 2);
+        playButton.setPosition(Gdx.graphics.getWidth() / 2 - playButton.getWidth() / 2, Gdx.graphics.getHeight() / 2 - playButton.getHeight() / 2);
         playButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
@@ -84,10 +85,20 @@ public class Menu implements Screen {
             }
         });
 
+        leaderButton = new TextButton("Leaders", style);
+        leaderButton.setPosition(Gdx.graphics.getWidth() / 6 - leaderButton.getWidth() / 2, Gdx.graphics.getHeight()/2 - leaderButton.getHeight() /2);
+        leaderButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+                g.showLeaders();
+            }
+        });
+
         fieldTexture = new Texture("soccerField.jpg");
         stage.addActor(playButton);
         stage.addActor(creditsButton);
         stage.addActor(helpButton);
+        stage.addActor(leaderButton);
 
         if (!poncer.actionResolver.getSignedInGPGS()) poncer.actionResolver.loginGPGS();
     }

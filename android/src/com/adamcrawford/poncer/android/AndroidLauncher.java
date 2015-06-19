@@ -8,6 +8,15 @@ import com.adamcrawford.poncer.ActionResolver;
 import com.adamcrawford.poncer.Poncer;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.share.Sharer;
+import com.facebook.share.model.ShareOpenGraphAction;
+import com.facebook.share.model.ShareOpenGraphContent;
+import com.facebook.share.model.ShareOpenGraphObject;
+import com.facebook.share.widget.ShareDialog;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
@@ -27,11 +36,37 @@ public class AndroidLauncher extends AndroidApplication implements GoogleApiClie
     private boolean mAutoStartSignInFlow = true;
     private boolean mSignInClicked = false;
 
+    CallbackManager callbackManager;
+    ShareDialog shareDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FacebookSdk.sdkInitialize(getApplicationContext());
         AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
         initialize(new Poncer(this), config);
+
+        callbackManager = CallbackManager.Factory.create();
+        shareDialog = new ShareDialog(this);
+        // this part is optional
+        shareDialog.registerCallback(callbackManager, new FacebookCallback<Sharer.Result>() {
+
+            @Override
+            public void onSuccess(Sharer.Result result) {
+
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
+
+            @Override
+            public void onError(FacebookException e) {
+                Log.e("Error", e.getMessage());
+                e.printStackTrace();
+            }
+        });
 
         mGoogleApiClient = new GoogleApiClient.Builder(this, this, this)
                 .addApi(Games.API).addScope(Games.SCOPE_GAMES)
@@ -66,6 +101,8 @@ public class AndroidLauncher extends AndroidApplication implements GoogleApiClie
                 BaseGameUtils.showActivityResultError(this,
                         request, response, R.string.signin_failure);
             }
+        } else {
+            callbackManager.onActivityResult(request, response, data);
         }
     }
 
@@ -154,5 +191,28 @@ public class AndroidLauncher extends AndroidApplication implements GoogleApiClie
     @Override
     public void onResult(Leaderboards.SubmitScoreResult submitScoreResult) {
         Log.e("Result", submitScoreResult.getStatus().toString());
+    }
+
+    @Override
+    public void shareFB(int score, String name){
+
+        if (ShareDialog.canShow(ShareOpenGraphContent.class)){
+            ShareOpenGraphObject openGraphObject = new ShareOpenGraphObject.Builder()
+                    .putString("og:type", "smrtgeekappsponcer:goal")
+                    .putInt("smrtgeekappsponcer:total", score)
+                    .build();
+
+            ShareOpenGraphAction action = new ShareOpenGraphAction.Builder()
+                    .setActionType("smrtgeekappsponcer:score")
+                    .putObject("smrtgeekappsponcer:goal", openGraphObject)
+                    .build();
+
+            ShareOpenGraphContent content = new ShareOpenGraphContent.Builder()
+                    .setPreviewPropertyName("smrtgeekappsponcer:goal")
+                    .setAction(action)
+                    .build();
+
+            shareDialog.show(content);
+        }
     }
 }

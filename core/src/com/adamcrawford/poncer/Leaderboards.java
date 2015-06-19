@@ -5,7 +5,6 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -16,79 +15,71 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 
-
 /**
  * Author:  Adam Crawford
  * Project: MGD1505
  * Package: com.adamcrawford.poncer
- * File:    Splash
+ * File:    Leaderboards
  * Purpose: TODO Minimum 2 sentence description
  */
-public class End implements Screen {
-
-    Texture fieldTexture;
-    BitmapFont font;
-    GlyphLayout resultLayout = new GlyphLayout();
-    SpriteBatch batch;
-    Stage stage;
-    TextButton.TextButtonStyle style;
-    TextButton menuButton;
-    String winnerString = "Game Over";
-    OrthographicCamera camera;
-    TextButton fbShareButton;
+public class Leaderboards implements Screen {
 
     Poncer poncer;
+    TextButton onlineButton;
+    Stage stage;
+    TextButton.TextButtonStyle style;
+    BitmapFont font;
+    BitmapFont titleFont;
+    SpriteBatch batch;
+    Texture fieldTexture;
+    TextButton localButton;
+    String title = "Poncer Leaderboards";
+    GlyphLayout titleLayout = new GlyphLayout();
 
-    public End(final Poncer g, final int score) {
-
+    public Leaderboards(final Poncer g) {
+        poncer = g;
         stage = new Stage();
-        style = new TextButton.TextButtonStyle();
         batch = new SpriteBatch();
-        camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camera.update();
 
         Gdx.input.setInputProcessor(stage);
 
-        poncer = g;
-        fieldTexture = new Texture("soccerField.jpg");
+        style = new TextButton.TextButtonStyle();
         FileHandle fontFile = Gdx.files.internal("Roboto.ttf");
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(fontFile);
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 150;
-
+        FreeTypeFontGenerator.FreeTypeFontParameter titleParam = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 100;
+        titleParam.size = 150;
         font = generator.generateFont(parameter);
-        font.setColor(Color.BLACK);
+        titleFont = generator.generateFont(titleParam);
+        titleFont.setColor(Color.BLACK);
 
         style.font = font;
         style.fontColor = Color.BLUE;
-        menuButton = new TextButton("Main Menu", style);
-        menuButton.setPosition(Gdx.graphics.getWidth() / 6 + menuButton.getWidth() / 2, menuButton.getHeight());
-        menuButton.addListener(new ChangeListener() {
+
+        onlineButton = new TextButton("Online", style);
+        onlineButton.setPosition(Gdx.graphics.getWidth() / 6 - onlineButton.getWidth() / 2, Gdx.graphics.getHeight() / 2 - onlineButton.getHeight() / 2);
+        onlineButton.addListener(new ChangeListener() {
             @Override
-            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                Gdx.app.log("Play", "Menu Pressed");
-                g.showMenu();
+            public void changed(ChangeEvent event, Actor actor) {
+                //launch Online Leaderboard
+                g.actionResolver.getLeaderboardGPGS();
             }
         });
 
-        fbShareButton = new TextButton("Share", style);
-        fbShareButton.setPosition((Gdx.graphics.getWidth() - Gdx.graphics.getWidth() / 6) - fbShareButton.getWidth() / 2, fbShareButton.getHeight());
-        fbShareButton.addListener(new ChangeListener() {
+        localButton = new TextButton("Local", style);
+        localButton.setPosition(Gdx.graphics.getWidth() - Gdx.graphics.getWidth() / 6 - localButton.getWidth() / 2, Gdx.graphics.getHeight() / 2 - localButton.getHeight() / 2);
+        localButton.addListener(new ChangeListener() {
             @Override
-            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                g.actionResolver.shareFB(score, "test");
+            public void changed(ChangeEvent event, Actor actor) {
+                //Launch Local Leaderboard
             }
         });
 
-        stage.addActor(menuButton);
-        stage.addActor(fbShareButton);
+        fieldTexture = new Texture("soccerField.jpg");
+        stage.addActor(localButton);
+        stage.addActor(onlineButton);
 
-        winnerString = winnerString + "\nPoints: " + score;
-
-        if (poncer.actionResolver.getSignedInGPGS()){
-            poncer.actionResolver.submitScoreGPGS(score);
-        }
     }
 
     @Override
@@ -98,35 +89,38 @@ public class End implements Screen {
 
     @Override
     public void render(float delta) {
-        batch.setProjectionMatrix(camera.combined);
-
         Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        resultLayout.setText(font, winnerString);
+        titleLayout.setText(titleFont, title);
         batch.begin();
         batch.draw(fieldTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        font.draw(batch, resultLayout, (Gdx.graphics.getWidth() / 2) - resultLayout.width / 2, Gdx.graphics.getHeight() - resultLayout.height / 2);
+        titleFont.draw(batch, titleLayout, (Gdx.graphics.getWidth() / 2) - (titleLayout.width / 2), (Gdx.graphics.getHeight()) - (titleLayout.height / 2));
         batch.end();
         stage.draw();
     }
 
     @Override
     public void resize(int width, int height) {
+
     }
 
     @Override
     public void pause() {
+
     }
 
     @Override
     public void resume() {
+
     }
 
     @Override
     public void hide() {
+
     }
 
     @Override
     public void dispose() {
+
     }
 }

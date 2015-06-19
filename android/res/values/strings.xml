@@ -8,5 +8,7 @@
     <string name="app_id">715453984562</string>
     <string name="leaderboard_all">CgkIst6Fo-kUEAIQBQ</string>
     <string name="signin_failure">Failed</string>
+    <string name="leaders">Leaderboards</string>
+    <string name="facebook_app_id">841408289248157</string>
 
 </resources>

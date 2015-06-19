@@ -129,4 +129,5 @@ dependencies {
     compile project(':BaseGameUtils')
     compile 'com.android.support:multidex:1.0.0'
     compile 'com.google.android.gms:play-services:7.5.0'
+    compile 'com.facebook.android:facebook-android-sdk:4.2.0'
 }
