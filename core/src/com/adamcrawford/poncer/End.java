@@ -63,7 +63,7 @@ public class End implements Screen {
         style.font = font;
         style.fontColor = Color.BLUE;
         menuButton = new TextButton("Main Menu", style);
-        menuButton.setPosition((Gdx.graphics.getWidth() / 6) + menuButton.getWidth() / 2, menuButton.getHeight());
+        menuButton.setPosition((Gdx.graphics.getWidth() / 6), menuButton.getHeight());
         menuButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
