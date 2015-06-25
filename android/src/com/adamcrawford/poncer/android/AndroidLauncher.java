@@ -141,6 +141,11 @@ public class AndroidLauncher extends AndroidApplication implements GoogleApiClie
     }
 
     @Override
+    public void incrementAchievementGPGS(String achievementId) {
+        Games.Achievements.increment(mGoogleApiClient, achievementId, 1);
+    }
+
+    @Override
     public void getLeaderboardGPGS() {
         startActivityForResult(Games.Leaderboards.getLeaderboardIntent(mGoogleApiClient, getString(R.string.leaderboard_all)), 0);
     }

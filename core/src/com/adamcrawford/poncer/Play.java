@@ -507,6 +507,7 @@ public class Play implements InputProcessor, Screen {
                     if (staticPlayers.size() < 6) {
                         int random = rand.nextInt(2);
                         if (random > 0) {
+                            poncer.actionResolver.unlockAchievementGPGS("CgkIst6Fo-kUEAIQCA");
                             if (!(offensePlayers >= 3)) {
                                 createPlayer(StaticPlayer.TYPE.OFFENSE);
                                 offensePlayers += 1;
@@ -519,7 +520,7 @@ public class Play implements InputProcessor, Screen {
                                 createPlayer(StaticPlayer.TYPE.DEFENSE);
                                 defensePlayers += 1;
                             } else if (!(offensePlayers >= 3)) {
-                                createPlayer(StaticPlayer.TYPE.DEFENSE);
+                                createPlayer(StaticPlayer.TYPE.OFFENSE);
                                 offensePlayers += 1;
                             }
                         }
