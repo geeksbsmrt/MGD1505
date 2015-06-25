@@ -47,6 +47,7 @@ public class Poncer extends Game implements ApplicationListener {
 
     public void startGame() {
         playScreen = new Play(this);
+        //Incremental Achievement
         actionResolver.incrementAchievementGPGS("CgkIst6Fo-kUEAIQBw");
         setScreen(playScreen);
     }

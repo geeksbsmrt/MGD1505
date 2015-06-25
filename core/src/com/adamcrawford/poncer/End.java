@@ -89,9 +89,11 @@ public class End implements Screen {
         if (poncer.actionResolver.getSignedInGPGS()){
             poncer.actionResolver.submitScoreGPGS(score);
             if (score == 0){
+                //Negative Achievement
                 poncer.actionResolver.unlockAchievementGPGS("CgkIst6Fo-kUEAIQBg");
             }
             if (score >= 10){
+                //Measurement Achievement
                 poncer.actionResolver.unlockAchievementGPGS("CgkIst6Fo-kUEAIQCQ");
             }
         }

@@ -507,6 +507,7 @@ public class Play implements InputProcessor, Screen {
                     if (staticPlayers.size() < 6) {
                         int random = rand.nextInt(2);
                         if (random > 0) {
+                            //Completion Achievement
                             poncer.actionResolver.unlockAchievementGPGS("CgkIst6Fo-kUEAIQCA");
                             if (!(offensePlayers >= 3)) {
                                 createPlayer(StaticPlayer.TYPE.OFFENSE);
